@@ -599,10 +599,10 @@ _opc_(0xCFEF, OP_CFEF,     "OPCFEF",     op_illegal2,  OPCODE_BYTE,         0)
    opcode subsequently incorporated into the later source will be
    moved to a new location.                                              */
 
-_opc_(0xCFF0, OP_CFF0,     "OPCFF0",     op_illegal2,  OPCODE_BYTE,         0)
-_opc_(0xCFF1, OP_CFF1,     "OPCFF1",     op_illegal2,  OPCODE_BYTE,         0)
-_opc_(0xCFF2, OP_CFF2,     "OPCFF2",     op_illegal2,  OPCODE_BYTE,         0)
-_opc_(0xCFF3, OP_CFF3,     "OPCFF3",     op_illegal2,  OPCODE_BYTE,         0)
+_opc_(0xCFF0, OP_SADD,     "SADD",     op_sadd,  OPCODE_BYTE,         -1)
+_opc_(0xCFF1, OP_SSUB,     "SSUB",     op_ssub,  OPCODE_BYTE,         -1)
+_opc_(0xCFF2, OP_SMUL,     "SMUL",     op_smul,  OPCODE_BYTE,         -1)
+_opc_(0xCFF3, OP_SDIV,     "SDIV",     op_sdiv,  OPCODE_BYTE,         -1)
 _opc_(0xCFF4, OP_CFF4,     "OPCFF4",     op_illegal2,  OPCODE_BYTE,         0)
 _opc_(0xCFF5, OP_CFF5,     "OPCFF5",     op_illegal2,  OPCODE_BYTE,         0)
 _opc_(0xCFF6, OP_CFF6,     "OPCFF6",     op_illegal2,  OPCODE_BYTE,         0)

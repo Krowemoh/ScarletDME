@@ -74,7 +74,7 @@ ARCH	 := -m32
 # -Wformat=0 turns off the format specifier warnings so other warnings don't get lost.
 C_FLAGS  := -Wall -Wformat=0 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH)
 
-L_FLAGS  := -Wl,--no-as-needed -lm -lcrypt -ldl
+L_FLAGS  := -Wl,--no-as-needed -lm -lcrypt -ldl -lcrypto
 RM       := rm
 
 QMHDRS   := $(wildcard *.h)

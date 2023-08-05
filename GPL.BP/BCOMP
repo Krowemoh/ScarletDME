@@ -282,7 +282,7 @@ $catalog $BCOMP
 
 $include syscom.h
 $include tokens.h
-$include opcodes.h
+$include BP opcodes.h
 $include header.h
 $include dictdict.h
 $include int$keys.h
@@ -712,7 +712,9 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "REUSE"           ; intrinsic.opcodes<-1> = OP.REUSE
    intrinsics<-1> = "RND"             ; intrinsic.opcodes<-1> = OP.RND
    intrinsics<-1> = "RTRANS"          ; intrinsic.opcodes<-1> = OP.RTRANS
+   intrinsics<-1> = "SADD" ; intrinsic.opcodes<-1> = OP.SADD
    intrinsics<-1> = "SAVE.SCREEN"     ; intrinsic.opcodes<-1> = OP.SAVESCRN
+   intrinsics<-1> = "SDIV" ; intrinsic.opcodes<-1> = OP.SDIV
    intrinsics<-1> = "SELECTINFO"      ; intrinsic.opcodes<-1> = OP.SLCTINFO
    intrinsics<-1> = "SENTENCE"        ; intrinsic.opcodes<-1> = OP.NULL
    intrinsics<-1> = "SEQ"             ; intrinsic.opcodes<-1> = OP.SEQ
@@ -721,6 +723,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "SET.SOCKET.MODE" ; intrinsic.opcodes<-1> = OP.SETSKT
    intrinsics<-1> = "SHIFT"           ; intrinsic.opcodes<-1> = OP.SHIFT
    intrinsics<-1> = "SIN"             ; intrinsic.opcodes<-1> = OP.SIN
+   intrinsics<-1> = "SMUL"             ; intrinsic.opcodes<-1> = OP.SMUL
    intrinsics<-1> = "SOCKET.INFO"     ; intrinsic.opcodes<-1> = OP.SKTINFO
    intrinsics<-1> = "SOUNDEX"         ; intrinsic.opcodes<-1> = OP.SOUNDEX
    intrinsics<-1> = "SOUNDEXS"        ; intrinsic.opcodes<-1> = OP.SOUNDEXS
@@ -729,6 +732,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "SPLICE"          ; intrinsic.opcodes<-1> = OP.SPLICE
    intrinsics<-1> = "SQRT"            ; intrinsic.opcodes<-1> = OP.SQRT
    intrinsics<-1> = "SQUOTE"          ; intrinsic.opcodes<-1> = OP.SQUOTE
+   intrinsics<-1> = "SSUB"          ; intrinsic.opcodes<-1> = OP.SSUB
    intrinsics<-1> = "STATUS"          ; intrinsic.opcodes<-1> = OP.STATUS
    intrinsics<-1> = "STR"             ; intrinsic.opcodes<-1> = OP.STR
    intrinsics<-1> = "STRS"            ; intrinsic.opcodes<-1> = OP.STRS
@@ -4097,7 +4101,9 @@ end
                       in.one,         ;* REUSE
                       in.one,         ;* RND
                       in.trans,       ;* RTRANS
+                      in.two,         ;* SADD
                       in.four,        ;* SAVE.SCREEN
+                      in.two,        ;* SDIV
                       in.two,         ;* SELECTINFO
                       in.sentence,    ;* SENTENCE
                       in.one,         ;* SEQ
@@ -4106,6 +4112,7 @@ end
                       in.three,       ;* SET.SOCKET.MODE
                       in.two,         ;* SHIFT
                       in.one,         ;* SIN
+                      in.two,         ;* SMUL
                       in.two,         ;* SOCKETINFO
                       in.one,         ;* SOUNDEX
                       in.one,         ;* SOUNDEXS
@@ -4114,6 +4121,7 @@ end
                       in.three,       ;* SPLICE
                       in.one,         ;* SQRT
                       in.one,         ;* SQUOTE
+                      in.two,         ;* SSUB
                       in.none,        ;* STATUS
                       in.two,         ;* STR
                       in.two,         ;* STRS
@@ -4231,7 +4239,7 @@ in.create.socket.server:
                gosub get.token
                gosub exprf
             end else
-               n = "" ; gosub emit.string.load
+               n = 0 ; gosub emit.numeric.load
             end
             goto intrinsic.common
 

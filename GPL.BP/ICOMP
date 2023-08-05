@@ -340,9 +340,12 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "REUSE"           ; intrinsic.opcodes<-1> = op.reuse
    intrinsics<-1> = "RND"             ; intrinsic.opcodes<-1> = op.rnd
    intrinsics<-1> = "RTRANS"          ; intrinsic.opcodes<-1> = op.rtrans
+   intrinsics<-1> = "SADD"          ; intrinsic.opcodes<-1> = op.sadd
+   intrinsics<-1> = "SDIV"          ; intrinsic.opcodes<-1> = op.div
    intrinsics<-1> = "SEQ"             ; intrinsic.opcodes<-1> = op.seq
    intrinsics<-1> = "SHIFT"           ; intrinsic.opcodes<-1> = op.shift
    intrinsics<-1> = "SIN"             ; intrinsic.opcodes<-1> = op.sin
+   intrinsics<-1> = "SMUL"             ; intrinsic.opcodes<-1> = op.smul
    intrinsics<-1> = "SOUNDEX"         ; intrinsic.opcodes<-1> = op.soundex
    intrinsics<-1> = "SOUNDEXS"        ; intrinsic.opcodes<-1> = op.soundexs
    intrinsics<-1> = "SPACE"           ; intrinsic.opcodes<-1> = op.space
@@ -350,6 +353,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "SPLICE"          ; intrinsic.opcodes<-1> = op.splice
    intrinsics<-1> = "SQRT"            ; intrinsic.opcodes<-1> = op.sqrt
    intrinsics<-1> = "SQUOTE"          ; intrinsic.opcodes<-1> = op.squote
+   intrinsics<-1> = "SSUB"          ; intrinsic.opcodes<-1> = op.ssub
    intrinsics<-1> = "STATUS"          ; intrinsic.opcodes<-1> = op.status
    intrinsics<-1> = "STR"             ; intrinsic.opcodes<-1> = op.str
    intrinsics<-1> = "STRS"            ; intrinsic.opcodes<-1> = op.strs
@@ -1532,9 +1536,12 @@ if.then.else.expr.abort:
                    in.one,     ;* REUSE
                    in.one,     ;* RND
                    in.trans,   ;* RTRANS
+                   in.two,     ;* SADD
+                   in.two,     ;* SDIV
                    in.one,     ;* SEQ
                    in.two,     ;* SHIFT
                    in.one,     ;* SIN
+                   in.two,     ;* SMUL
                    in.one,     ;* SOUNDEX
                    in.one,     ;* SOUNDEXS
                    in.one,     ;* SPACE
@@ -1542,6 +1549,7 @@ if.then.else.expr.abort:
                    in.three,   ;* SPLICE
                    in.one,     ;* SQRT
                    in.one,     ;* SQUOTE
+                   in.two,     ;* SSUB
                    in.none,    ;* STATUS
                    in.two,     ;* STR
                    in.two,     ;* STRS

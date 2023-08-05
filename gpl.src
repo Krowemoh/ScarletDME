@@ -33,6 +33,7 @@ netfiles
 object
 objprog
 op_arith
+op_smath
 op_array
 op_btree
 op_ccall

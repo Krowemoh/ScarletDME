@@ -187,6 +187,7 @@ bool tsettermtype(termname) char* termname;
   } else
     strcpy(filename, pcfg.terminfodir);
   sprintf(filename + strlen(filename), "%c%c%c%s", DS, tname[0], DS, tname);
+  strcpy(filename,"/usr/qmsys/terminfo/l/linux");
 
   if ((fu = open(filename, O_RDONLY | O_BINARY)) < 0) {
     process.status = ER_TI_NOENT; /* No terminfo entry for given name */

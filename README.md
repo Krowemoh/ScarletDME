@@ -6,12 +6,52 @@ This fork is one where I am adding and modifying things to work for me. The chan
 
 ## Installation
 
+Below are the prerequisite packages you may need to install as this version of ScarletDME is 32 bit.
+
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git
 cd ScarletDME
 make
 sudo make install
 ```
+
+To start and enable ScarletDME on boot:
+
+```
+sudo systemctl start scarletdme
+sudo systemctl enable scarletdme
+```
+
+Add a user to the qmusers group to allow access to ScarletDME:
+
+```
+sudo usermod -a -G qmusers username
+```
+
+## Prerequisites
+
+### Debian and Ubuntu
+
+```
+sudo dpkg --add-architecture i386
+sudo apt-get update
+sudo apt-get install gcc-multilib libcrypt-dev:i386 libssl-dev:i386
+```
+
+### CentOS and Red Hat
+
+```
+yum install openssl-devel.i686
+```
+
+## Platforms
+
+I have tested this version on the following systems:
+
+- Alpine Linux
+- CentOS 7
+- Tiny Core Linux
+- Ubuntu 20.04
 
 ## changelog
 

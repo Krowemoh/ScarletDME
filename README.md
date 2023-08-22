@@ -15,6 +15,8 @@ sudo make install
 
 ## changelog
 
+```
 31 JUL 2023 - Hardcoded the terminal type.  
 05 AUG 2023 - Added BigNumber support.  
 21 AUG 2023 - Updated the Makefile to be more similar to the 64bit version.  
+```

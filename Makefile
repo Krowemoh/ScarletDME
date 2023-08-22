@@ -64,8 +64,14 @@ GPLSRC   := $(MAIN)gplsrc/
 GPLDOTSRC := $(MAIN)gpl.src
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
-TERMINFO := $(MAIN)terminfo/
+TERMINFO := $(MAIN)qmsys/terminfo/
 VPATH    := $(GPLOBJ):$(GPLBIN):$(GPLSRC)
+
+ifneq ($(wildcard /usr/lib/systemd/system/.),)
+	SYSTEMDPATH := /usr/lib/systemd/system
+else
+	SYSTEMDPATH := /lib/systemd/system
+endif
 
 COMP     := gcc
 ARCH	 := -m32
@@ -87,6 +93,8 @@ SRCS     := $(TEMPSRCS:qmclient.c=)
 OBJS     := $(SRCS:.c=.o)
 DIROBJS  := $(addprefix $(GPLOBJ),$(OBJS))
 INSTROOT := /usr/qmsys
+QMSYS   := $(shell cat /etc/passwd | grep qmsys)
+QMUSERS := $(shell cat /etc/group | grep qmusers)
 
 #TEMPOBJS := $(SRCS:.c=.o)
 #OBJS     := $(addprefix $(GPLOBJ),$(TEMPOBJS))
@@ -130,8 +138,8 @@ qmlnxd: qmlnxd.o qmsem.o
 
 terminfo:
 	@echo Compiling terminfo library
-	@cd $(GPLSRC)
-	@mkdir $(TERMINFO)
+	@test -d qmsys/terminfo || mkdir qmsys/terminfo
+	@cd qmsys
 	@$(GPLBIN)qmtic -pterminfo $(MAIN)terminfo.src
 
 qmclilib.o: qmclilib.c revstamp.h
@@ -187,60 +195,91 @@ sysseg.o: sysseg.c revstamp.h
 .PHONY: clean distclean install datafiles
 
 install:  
+ifeq ($(QMUSERS),)
+	@echo Creating qm system user and group
+	@groupadd --system qmusers
+	@usermod -a -G qmusers root
+endif
+ifeq ($(QMSYS),)
+	@useradd --system qmsys --gid qmusers
+endif
 	@echo Installing to $(INSTROOT)
-	@test -d $(INSTROOT) || mkdir $(INSTROOT)
-	@test -d $(INSTROOT)/bin || mkdir $(INSTROOT)/bin
-	@for qm_prog in $(GPLBIN)*; do \
-	  install -m 775 -o qmsys -g qmusers $$qm_prog $(INSTROOT)/bin; \
-	done
-	@chmod -R 775 $(INSTROOT)
+ifeq ($(wildcard $(INSTROOT)/.),)
+#	qmsys doesn't exist, so copy it to the live location
+	cp -R qmsys $(INSTROOT)
+	chown -R qmsys:qmusers $(INSTROOT)
+	chmod -R 664 $(INSTROOT)
+	find $(INSTROOT) -type d -print0 | xargs -0 chmod 775
+#	else update everything that's changed, eg NEWVOC, MESSAGES, all that sort of stuff.
+else
+#	copy FILEs that need updating
+#	copy the contents of NEWVOC so the account will upgrade
+	@rm $(INSTROOT)/NEWVOC/*
+	@cp qmsys/NEWVOC/* $(INSTROOT)/NEWVOC
+	@chown qmsys:qmusers $(INSTROOT)/NEWVOC/*
+	@chmod 664 $(INSTROOT)/NEWVOC/*
 
-datafiles:
-	@echo Installing data files...
-	@cp -r $(MAIN)ACCOUNTS/ $(INSTROOT)/ACCOUNTS
-	@cp -r $(MAIN)ACCOUNTS.DIC/ $(INSTROOT)/ACCOUNTS.DIC
-	@cp -r $(MAIN)BP/ $(INSTROOT)/BP
-	@cp -r $(MAIN)cat/ $(INSTROOT)/cat
-	@cp -r $(MAIN)\$$COMO/ $(INSTROOT)/\$$COMO
-	@chmod 775 $(INSTROOT)/\$$COMO
-	@cp -r $(MAIN)DICT.DIC/ $(INSTROOT)/DICT.DIC
-	@cp -r $(MAIN)DIR_DICT/ $(INSTROOT)/DIR_DICT
-	@cp -r $(MAIN)ERRMSG/ $(INSTROOT)/ERRMSG
-	@cp -r $(MAIN)ERRMSG.DIC/ $(INSTROOT)/ERRMSG.DIC
-	@cp -r $(MAIN)\$$FORMS/ $(INSTROOT)/\$$FORMS
-	@chmod 775 $(INSTROOT)/\$$FORMS
-	@cp -r $(MAIN)gcat/ $(INSTROOT)/gcat
-	@chmod 665 $(INSTROOT)/gcat/*
-	@cp -r $(MAIN)GPL.BP/ $(INSTROOT)/GPL.BP
-	@cp -r $(MAIN)GPL.BP.OUT/ $(INSTROOT)/GPL.BP.OUT
-	@cp -r $(MAIN)\$$HOLD/ $(INSTROOT)/\$$HOLD
-	@cp -r $(MAIN)\$$HOLD.DIC/ $(INSTROOT)/\$$HOLD.DIC
-	@chmod 665 $(INSTROOT)/\$$HOLD.DIC/*
-	@cp -r $(MAIN)\/$$IPC/ $(INSTROOT)/\$$IPC
-	@cp -r $(MAIN)\$$LOGINS/ $(INSTROOT)/\$$LOGINS
-	@chmod 665 $(INSTROOT)/\$$LOGINS/*
-	@cp -r $(MAIN)\$$MAP/ $(INSTROOT)/\$$MAP
-	@chmod 665 $(INSTROOT)/\$$MAP/*
-	@cp -r $(MAIN)\$$MAP.DIC/ $(INSTROOT)/\$$MAP.DIC
-	@cp -r $(MAIN)MESSAGES/ $(INSTROOT)/MESSAGES
-	@cp -r $(MAIN)NEWVOC/ $(INSTROOT)/NEWVOC
-	@cp -r $(MAIN)prt/ $(INSTROOT)/prt
-	@cp -r $(MAIN)QM.VOCLIB/ $(INSTROOT)/QM.VOCLIB
-	@cp -r $(MAIN)\$$SCREENS/ $(INSTROOT)/\$$SCREENS
-	@cp -r $(MAIN)\$$SCREENS.DIC/ $(INSTROOT)/\$$SCREENS.DIC
-	@cp -r $(MAIN)\$$SVLISTS/ $(INSTROOT)/\$$SVLISTS
-	@cp -r $(MAIN)SYSCOM/ $(INSTROOT)/SYSCOM
-	@chmod 665 $(INSTROOT)/SYSCOM/*
-	@cp -r $(MAIN)terminfo/ $(INSTROOT)/terminfo
-	@cp -r $(MAIN)TEST/ $(INSTROOT)/TEST
-	@cp -r $(MAIN)tools/ $(INSTROOT)/tools
-	@cp -r $(MAIN)VOC/ $(INSTROOT)/VOC
-	@cp -r $(MAIN)VOC.DIC/ $(INSTROOT)/VOC.DIC
-	@cp -r $(MAIN)BP.OUT/ $(INSTROOT)/BP.OUT
-	@chown -R qmsys.qmusers $(INSTROOT)
-	@chmod 775 /usr/qmsys
-	@chmod 775 /usr/qmsys/*
-	@echo Data file copy completed!
+#	copy the contents of MESSAGES so the account will upgrade
+	@rm $(INSTROOT)/MESSAGES/*
+	@cp qmsys/MESSAGES/* $(INSTROOT)/MESSAGES
+	@chown qmsys:qmusers $(INSTROOT)/MESSAGES/*
+	@chmod 664 $(INSTROOT)/MESSAGES/*
+
+#	copy the contents of terminfo so the account will upgrade
+	@rm -Rf $(INSTROOT)/terminfo/*
+	@cp -R qmsys/terminfo/* $(INSTROOT)/terminfo
+	@chown qmsys:qmusers $(INSTROOT)/terminfo/*
+	@chmod 775 $(INSTROOT)/terminfo/*
+
+endif
+#       copy bin files and make them executable
+	@test -d $(INSTROOT)/bin || mkdir $(INSTROOT)/bin
+#	copy the contents of bin so the account will upgrade
+	@rm $(INSTROOT)/bin/*
+	@cp bin/* $(INSTROOT)/bin
+	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
+	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*
+
+	@echo Writing scarlet.conf file
+	@cp $(main)scarlet.conf /etc/scarlet.conf
+	@chmod 644 /etc/scarlet.conf
+
+#	Create symbolic link if it does not exist
+	@test -f /usr/bin/qm || ln -s /usr/qmsys/bin/qm /usr/bin/qm
+
+#	Install systemd configuration file if needed.
+ifneq ($(wildcard $(SYSTEMDPATH)/.),)
+	@echo Installing scarletdme.service for systemd.
+	@cp usr/lib/systemd/system/* $(SYSTEMDPATH)
+	@chown root:root $(SYSTEMDPATH)/scarletdme.service
+	@chown root:root $(SYSTEMDPATH)/scarletdmeclient.socket
+	@chown root:root $(SYSTEMDPATH)/scarletdmeclient@.service
+	@chown root:root $(SYSTEMDPATH)/scarletdmeserver.socket
+	@chown root:root $(SYSTEMDPATH)/scarletdmeserver@.service
+	@chmod 644 $(SYSTEMDPATH)/scarletdme.service
+	@chmod 644 $(SYSTEMDPATH)/scarletdmeclient.socket
+	@chmod 644 $(SYSTEMDPATH)/scarletdmeclient@.service
+	@chmod 644 $(SYSTEMDPATH)/scarletdmeserver.socket
+	@chmod 644 $(SYSTEMDPATH)/scarletdmeserver@.service
+endif
+
+#	Install xinetd files if required
+ifneq ($(wildcard /etc/xinetd.d/.),)
+	@echo Installing xinetd files
+	@cp etc/xinetd.d/qmclient /etc/xinetd.d
+	@cp etc/xinetd.d/qmserver /etc/xinetd.d
+ifneq ($(wildcard /etc/services),)
+ifeq ($(shell cat /etc/services | grep qmclient),)
+	@cat etc/xinetd.d/services >> /etc/services
+endif
+endif
+endif
+
+systemd:
+	@systemctl enable scarletdme.service
+	@systemctl enable scarletdmeclient.socket
+	@systemctl enable scarletdmeserver.socket
+
 clean:
 	@$(RM) $(GPLOBJ)*.o
 	@$(RM) $(GPLOBJ)*.so

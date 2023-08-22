@@ -1,0 +1,9 @@
+[Unit]
+Description=ScarletDME Per-Connection Telnet Server
+
+[Service]
+User=root
+Group=qmusers
+ExecStart=/usr/qmsys/bin/qm -n
+StandardInput=socket
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=ScarletDME service start
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/qm -start
+# This should be here but currently seems to crash things ...
+# ExecStop=/usr/bin/qm -stop
+
+[Install]
+WantedBy=default.target

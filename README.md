@@ -6,8 +6,6 @@ This fork is one where I am adding and modifying things to work for me. The chan
 
 ## Installation
 
-Below are the prerequisite packages you may need to install as this version of ScarletDME is 32 bit.
-
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git
 cd ScarletDME
@@ -29,6 +27,8 @@ sudo usermod -a -G qmusers username
 ```
 
 ## Prerequisites
+
+Below are the prerequisite packages you may need to install as this version of ScarletDME is 32 bit.
 
 ### Debian and Ubuntu
 

@@ -235,7 +235,7 @@ endif
 #       copy bin files and make them executable
 	@test -d $(INSTROOT)/bin || mkdir $(INSTROOT)/bin
 #	copy the contents of bin so the account will upgrade
-	@rm $(INSTROOT)/bin/*
+	@rm -f $(INSTROOT)/bin/*
 	@cp bin/* $(INSTROOT)/bin
 	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
 	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*

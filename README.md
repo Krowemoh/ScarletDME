@@ -48,10 +48,13 @@ yum install openssl-devel.i686
 
 I have tested this version on the following systems:
 
-- Alpine Linux
 - CentOS 7
-- Tiny Core Linux
 - Ubuntu 20.04
+
+These platforms require some work as the Makefile doesn't support them.
+
+- Alpine Linux
+- Tiny Core Linux
 
 ## changelog
 

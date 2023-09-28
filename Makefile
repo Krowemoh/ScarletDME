@@ -100,7 +100,7 @@ ifeq (Darwin,$(OSNAME))
 	INSTROOT := /opt/qmsys
 	SONAME_OPT := -install_name
 else
-	L_FLAGS  := -Wl,--no-as-needed -lm -lcrypt -ldl
+	L_FLAGS  := -Wl,--no-as-needed -lm -lcrypt -ldl -lcrypto
 	INSTROOT := /usr/qmsys
 	SONAME_OPT := -soname
 endif
@@ -127,7 +127,7 @@ QMUSERS := $(shell cat /etc/group | grep qmusers)
 qm: ARCH :=
 qm: BITSIZE := 64
 qm: C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE
-qm: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd terminfo
+qm: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd
 	@echo Linking $@
 	@cd $(GPLOBJ)
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm

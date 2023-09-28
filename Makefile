@@ -135,7 +135,7 @@ qm: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd
 qm32: ARCH := -m32
 qm32: BITSIZE := 32
 qm32: C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH)
-qm32: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd terminfo
+qm32: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd
 	@echo Linking $@
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
@@ -265,7 +265,7 @@ endif
 #       copy bin files and make them executable
 	@test -d $(INSTROOT)/bin || mkdir $(INSTROOT)/bin
 #	copy the contents of bin so the account will upgrade
-	@rm $(INSTROOT)/bin/*
+	@rm -f $(INSTROOT)/bin/*
 	@cp bin/* $(INSTROOT)/bin
 	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
 	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*

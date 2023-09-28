@@ -328,7 +328,6 @@ clean:
 # no .so files are currently dropped into GPLOBJ...
 
 distclean: clean
-	@$(RM) $(GPLOBJ)*.o
 	@$(RM) $(GPLBIN)*
 	@$(RM) $(GPLSRC)terminfo
 

@@ -21,6 +21,9 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  * 
  * START-HISTORY (ScarletDME):
+ * 11Jan22 gwb Created a couple of new defines to eliminate some magic number use
+ *             in the k_error() function.
+ * 
  * 27Feb20 gwb Changed integer declarations to be portable across address
  *             space sizes (32 vs 64 bit)
  * 
@@ -57,11 +60,19 @@
 #define _XOPEN_SOURCE
 #define _XOPEN_CRYPT
 #include <unistd.h>
+#ifdef __APPLE__
+#include <machine/endian.h>
+#else
 #include <endian.h>
-#if __BYTE_ORDER == __BIG_ENDIAN
+#endif
+#if __BYTE_ORDER__ == __BIG_ENDIAN__
 #define BIG_ENDIAN_SYSTEM
 #endif
+#ifdef __APPLE__
+extern char **environ;
+#else
 #define environ __environ
+#endif
 
 #define Seek(fu, offset, whence) lseek(fu, offset, whence)
 
@@ -120,6 +131,9 @@
 #define MAX_SORTMRG 10
 #define MAX_SORT_KEYS 32
 #define MAX_SORT_KEY_LEN 1024
+
+#define MAX_ERROR_LINES 3        /* because I HATE magic numbers! */
+#define MAX_EMSG_LEN 80          /* These are used in k_error() in k_error.c */
 
 #define Private static
 

@@ -1,6 +1,130 @@
 ******************************************************************************
-*            THIS CHANGE LOG ONLY APPLIES TO THE "MASTER" BRANCH             *
+*            THIS CHANGE LOG ONLY APPLIES TO THE "DEV" BRANCH                *
 ******************************************************************************
+06Feb22 -gwb
+------------
+I ran ScarleDME through valgrind and discovered a few function calls that were
+acting upon variables that had not been initialized.
+
+When running ScarleDME via valgrind, I discovered that the "SH" problem doesn't
+happen on systems that are normally affected by it.  This tells me that we may
+have a Heisenbug on our hands.
+
+Fixed the use of LONG_MIN in op_dec() (op_arith.c).  These should have been
+changed to INT32_MIN when the original 64 bit conversion work was being done.
+
+===============================================================================
+
+27Jan22 -gwb
+------------
+
+The build was failing on macOS because the ioctl() call in lnxport.c resulted
+in an error because sys/ioctl.h was not included.  Added #ifdef __APPLE__ to
+fix that.
+
+===============================================================================
+
+14Jan22 -gwb
+------------
+
+There was an issue when trying to access the MESSAGES file from within ScarleDME.
+Somehow after Diccon T. converted MESSAGES from a dynamic file to a directory file,
+the dynamic file stores (~0 and ~1) were still present and it confused the hell
+out of the system.  I've removed those from the MESSAGES directory and things
+appear to be working well again.  It didn't affect how system programs read the
+messages, only when trying to list or edit entries in the MESSAGES file.
+
+I'm now putting misc things like TODO items research notes, etc. in a file called
+info/notes.txt.
+
+Most of the changes in tonight's commit are mostly cleanup as I did research into
+the "SH" problem that some users have.  I'm no closer to understanding what the
+precise issue is, but I've gained a greater understanding of how the system loads
+pcode objects, which is an important step to understanding the landscape.
+
+IMPORTANT NOTE:
+I've noticed that compiling code under the 64 bit build results in larger binary
+object files.  This is to be expected.  However, I do not think these larger
+object files will function at all with the 32 bit build, so extreme care must
+be taken to not contaminate the 32 bit object repository.  For this reason I may
+end up having to create two different packages of installation files in order to
+enforce that separation.
+
+info/setup.txt got updated with more instructions - thanks Wol!
+
+===============================================================================
+
+12Jan22 -gwb
+------------
+Makefile fixes!
+
+Fixed a typo that resulted in the $IPC directory being a mess and 
+not having the dynamic files it needed.
+Cleaned up the datafiles installation process to make sure the things
+that needed to get copied were.
+Ensured correct permissions were being correctly set for the all the 
+files within the subdirectories of the installation location.
+Incorrect permissions were causing issues with creating an account on
+the very first login to the system.
+===============================================================================
+
+11Jan22 - gwb 
+-------------
+Updates (in no particular order):
+It was discovered after I fixed an issue with the .gitignore file that we had
+a binary blob laying around that nobody was aware of!  It's called "pcode" and
+contains...pcode.  I think. :)  In fixing the .gitignore file to make sure that
+nothing from the bin directory got pushed to github, we lost that binary blob.
+This was discovered by Don M. when he tried building & installing from the dev
+branch this evening.  I made a quick fix and got the pcode file restored, so 
+others won't have this same issue.
+
+Unfortunately, the pcode file represents something we can't build from "source"
+at this time, so I'll have to work out precisely what's in it and reverse engineer
+it so that it can be re-created or expanded at will.  This is going to take some
+time, so it won't happen overnight.  The pcode file is loaded into the sysmesg
+structure when the bind_sysseg() call (in sysseg.c) is made, and it's parsed out
+in qm.c via the Pcode() macro - I left a pretty comprehensive explanation of 
+how the macro works there, so you might want to check it out.  It's a pretty clever
+way of processing a dynamic list of things as well as a way to create variables
+that reference them.
+
+Github offers a static code analysis tool called CodeQL that can be leveraged to
+find problems in your code.  I've got CodeQL enabled on the dev branch and it
+kicks off with each push to the repo.  It's very good at finding bad things to fix.
+I'll work through the issues it finds as I have time.  I've created a number of
+issues based on its output already.
+
+Closed git Issues 12, 15-17.
+
+===============================================================================
+10Jan22 - gwb
+-------------
+All of the format specifier warnings for *printf()/sscanf() have been resolved
+for the 64 bit build.  One remains in the 32 bit build in analyse.c and because 
+of the length of the code question, I didn't want to add an #ifndef __LP64__ to it.
+
+I've also resolved all of the warnings related to casting.  This work, in conjunction
+with the format specifier warning cleanup now results in a fully working 64 bit build!
+The issues noted in the 28Feb20 update no longer appear to be present.  The Basic
+compiler appears to function normally.  One of the tests I performed was to compile
+the Basic compiler with itself and then compile itself again.  No errors were indicated
+and it appears to be working the same as it does when ScarletDME is built as a 32 bit
+application.  A full suite of regression tests really should be created in order to 
+ensure that there's no behavior differences between the 32 bit and 64 bit builds.
+
+It's now easier to build the 64 bit target - simply change the BUILD64 define to Y
+in the makefile.
+The makefile will now announce what target it's building for.
+===============================================================================
+
+09Jan22 - gwb
+-------------
+Changed the STRING_CHUNK struct to align on a 2 byte boundary.  A warning
+was being triggered due to a cast from DH_RECORD, which uses a 2 byte boundary,
+to STRING_CHUNK which was not explicitly aligned, resulting it defaulting to an 8
+byte boundary.
+===============================================================================
 
 08Jan22 - gwb
 -------------
@@ -8,6 +132,7 @@ Added created the $COMO directory and added it to the list of things to be
 copied during "make install".
 This was done to prevent an error #3003 from being displayed by LISTF if 
 the $COMO file didn't exist.  Thanks to Don M. for this one as well.
+===============================================================================
 
 07Jan22 - gwb
 -------------
@@ -46,6 +171,25 @@ Made the following changes based on suggestions by Donald Montaine:
 Updated .gitignore to add additional files to ignore.
 
 Moved this file and other text files into the "info" directory.
+===============================================================================
+
+30May20 -Simon Kissane
+----------------------
+Added support for building on macOS Mojave.
+
+Note I haven't confirmed it actually works on macOS, just that it
+builds successfully.
+
+Note that on macOS this builds 64-bit instead of 32-bit. In macOS
+Catalina, support for running 32-bit programs has been removed. I am
+still on Mojave, but while Mojave can still run 32-bit programs, it has
+problems with building them. Due to both of those reasons, I made the
+macOS build default to 64-bit. (I didn't change the 32-bit default on
+Linux).
+
+I tested the build on Linux as well (Ubuntu), and it built successfully,
+so I conclude my changes for macOS have not broken the Linux build.
+===============================================================================
 
 30May20 -Simon Kissane
 ----------------------
@@ -64,6 +208,17 @@ building/running 32-bit Linux ScarletDME under Docker for Mac. (It could
 also be useful for people who run Linux but may not have the right
 development packages installed - the Dockerfile installs the necessary
 packages automatically.)
+===============================================================================
+
+06Mar20 -gwb
+--------------
+Fixed a couple of more warnings that are triggered for the 64 bit build.
+Fixed service naming issues in the xinetd configuration files.
+===============================================================================
+
+05Mar20 -gwb
+Fixed an implict declaration warning, but forgot to note it here.
+===============================================================================
 
 28Feb20, 29Feb20 -gwb
 ---------------------

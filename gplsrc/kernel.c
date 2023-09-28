@@ -21,6 +21,11 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  * 
  * START-HISTORY (ScarletDME):
+ * 15Jan22 gwb Fixed argument formatting issues (CwE-686)
+ *  
+ * 09Jan22 gwb Added a 64 bit target check to fatal_signal_handler() in order
+ *             to clear a warning when casting descr to int32_t on 64 bit builds.
+ *
  * 28Feb20 gwb Changed integer declarations to be portable across address
  *             space sizes (32 vs 64 bit)
  * 
@@ -256,8 +261,7 @@ bool init_kernel() {
 
     /* Ensure file map table is all zero */
 
-    memset((char*)(my_uptr->file_map), 0,
-           sysseg->numfiles * sizeof(u_int16_t));
+    memset((char*)(my_uptr->file_map), 0, sysseg->numfiles * sizeof(u_int16_t));
 
     if (is_phantom)
       my_uptr->flags |= USR_PHANTOM;
@@ -765,8 +769,8 @@ void k_return() {
     else
       tio.dsp.flags &= ~PU_PAGINATE;
     in_debugger = FALSE;
-  } else /* Not returning from debugger to program being debugged */
-  {
+  } else { /* Not returning from debugger to program being debugged */
+  
   }
 }
 
@@ -776,12 +780,10 @@ void k_return() {
    If the code_ptr argument is null, we perform a search for this object
    name.  Otherwise we simply call the object at that address.             */
 
-void k_call(
-    char* name,
-    int num_args,
-    u_char* code_ptr,    /* For in-line code items */
-    int16_t stack_adj) /* No of stack items to be removed before running */
-{
+void k_call(char* name, int num_args, u_char* code_ptr, int16_t stack_adj) {
+  /* code_ptr - For in-line code items */
+  /* stack_adj - No of stack items to be removed before running */
+
   struct OBJECT_HEADER* hdr;
   unsigned int mem_reqd;
   int i;
@@ -797,18 +799,17 @@ void k_call(
   /* Find the program. We omit this step for recursive calls as the program
     pointers will already be set.                                          */
 
-  if (code_ptr == NULL) /* Dynamically loaded object */
-  {
+  if (code_ptr == NULL) { /* Dynamically loaded object */
     hdr = (OBJECT_HEADER*)load_object(name, FALSE);
     if (hdr == NULL)
       k_error(sysmsg(1002), name);
+
     hdr->ext_hdr.prog.refs++;
 
     if (hdr->flags & HDR_IS_CLASS) {
       k_error(sysmsg(3450)); /* A CLASS routine may not be used in this way */
     }
-  } else /* In-line object, recursive or call via SUBR */
-  {
+  } else { /* In-line object, recursive or call via SUBR */
     hdr = (struct OBJECT_HEADER*)code_ptr;
   }
 
@@ -818,6 +819,7 @@ void k_call(
     prg = (struct PROGRAM*)k_alloc(18, sizeof(struct PROGRAM));
     if (prg == NULL)
       k_error(sysmsg(1003));
+
     process.program.saved_pc_offset = pc - c_base;
     process.program.saved_prompt_char = tio.prompt_char;
     *prg = process.program;
@@ -1190,9 +1192,9 @@ void show_stack() {
   do {
     line = k_line_no(offset, prg->saved_c_base);
     if (line < 0) {
-      tio_printf("%s (%08lX)\n", ProgramName(prg->saved_c_base), offset);
+      tio_printf("%s (%08X)\n", ProgramName(prg->saved_c_base), offset);
     } else {
-      tio_printf("%s %d (%08lX)\n", ProgramName(prg->saved_c_base), line,
+      tio_printf("%s %d (%08X)\n", ProgramName(prg->saved_c_base), line,
                  offset);
     }
 
@@ -1203,9 +1205,9 @@ void show_stack() {
       offset = prg->gosub_stack[i] - 1; /* Back up to GOSUB (etc) */
       line = k_line_no(offset, prg->saved_c_base);
       if (line < 0)
-        tio_printf("  (%08lX)\n", offset);
+        tio_printf("  (%08X)\n", offset);
       else
-        tio_printf("  %d (%08lX)\n", line, offset);
+        tio_printf("  %d (%08X)\n", line, offset);
     }
 
     if ((prg = prg->prev) == NULL)
@@ -1423,8 +1425,14 @@ void fatal_signal_handler(int signum) {
 
     for (i = 4; i >= -4; i--) {
       descr = e_stack + i;
-      printf("%2d %08lX: %02X %02X %08lX %08lX\n", i, (int32_t)descr, descr->type,
+//#warning "Casting to int64_t may not be the right solution for this."
+#ifndef __LP64__ /* 09Jan22 gwb: use int64_t for 64 bit builds. */
+      printf("%2d %08X: %02X %02X %08X %08X\n", i, (int32_t)descr, descr->type,
              descr->flags, descr->data.dbg.w1, descr->data.dbg.w2);
+#else
+      printf("%2d %08lX: %02X %02X %08X %08X\n", i, (int64_t)descr, descr->type,
+             descr->flags, descr->data.dbg.w1, descr->data.dbg.w2);
+#endif
       if (descr == e_stack_base)
         break;
     }

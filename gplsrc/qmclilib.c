@@ -16,6 +16,13 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  * 
  * START-HISTORY (ScarletDME):
+ * 15Jan22 gwb Fixed issue #26 - resolves CWE-197 check, "Comparison of narrow type with wide type in loop condition." 
+ * 
+ * 13Jan22 gwb Fixed issue #29 (QMCONFIG environment variable still being referenced)
+ * 
+ * 09Jan22 gwb Fixes to warnings related out output specifiers in printf().
+ *             (mostly changing %ld to %d)
+ *
  * 28Feb20 gwb Changed integer declarations to be portable across address
  *             space sizes (32 vs 64 bit)
  *
@@ -1295,7 +1302,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
   int32_t new_len;
   char* new_str;
   char* p;
-  int16_t i;
+  int i;   /* resolves CWE-197 check, "Comparison of narrow type with wide type in loop condition." */
   int32_t n;
   int16_t fm = 0;
   int16_t vm = 0;
@@ -1317,8 +1324,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
   if (svno < 0)
     svno = 0;
 
-  if (src_len == 0) /* Inserting in null string */
-  {
+  if (src_len == 0) { /* Inserting in null string */
     if (fno > 1)
       fm = fno - 1;
     if (vno > 1)
@@ -1332,8 +1338,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
 
   for (i = 1; i < fno; i++) {
     p = memchr(pos, FIELD_MARK, bytes);
-    if (p == NULL) /* No such field */
-    {
+    if (p == NULL) { /* No such field */
       fm = fno - i;
       if (vno > 1)
         vm = vno - 1;
@@ -1350,8 +1355,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
   if (p != NULL)
     bytes = p - pos; /* Length of field */
 
-  if (vno == 0) /* Inserting field */
-  {
+  if (vno == 0) { /* Inserting field */
     postmark = FIELD_MARK;
     goto done;
   }
@@ -1360,8 +1364,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
 
   for (i = 1; i < vno; i++) {
     p = memchr(pos, VALUE_MARK, bytes);
-    if (p == NULL) /* No such value */
-    {
+    if (p == NULL) { /* No such value */
       vm = vno - i;
       if (svno > 1)
         sm = svno - 1;
@@ -1376,8 +1379,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
   if (p != NULL)
     bytes = p - pos; /* Length of value, excluding end mark */
 
-  if (svno == 0) /* Inserting value */
-  {
+  if (svno == 0) { /* Inserting value */
     postmark = VALUE_MARK;
     goto done;
   }
@@ -1386,8 +1388,7 @@ char* DLLEntry QMIns(char* src, int fno, int vno, int svno, char* new) {
 
   for (i = 1; i < svno; i++) {
     p = memchr(pos, SUBVALUE_MARK, bytes);
-    if (p == NULL) /* No such subvalue */
-    {
+    if (p == NULL) { /* No such subvalue */
       sm = svno - i;
       pos += bytes;
       goto done;
@@ -1403,8 +1404,7 @@ done:
     at 'pos'.                                                           */
 
   n = pos - src; /* Length of leading substring */
-  if ((n == src_len) || (IsDelim(src[n]) && src[n] > postmark)) /* 0380 */
-  {
+  if ((n == src_len) || (IsDelim(src[n]) && src[n] > postmark)) { /* 0380 */
     postmark = '\0';
   }
 
@@ -2013,7 +2013,7 @@ char* DLLEntry QMReplace(char* src, int fno, int vno, int svno, char* new) {
   int32_t new_len;
   char* new_str;
   char* p;
-  int16_t i;
+  int i;
   int32_t n;
   int16_t fm = 0;
   int16_t vm = 0;
@@ -3244,7 +3244,7 @@ Private bool read_packet() {
   packet_bytes = LongInt(in_packet_header.packet_length) - IN_PKT_HDR_BYTES;
 
   if (srvr_debug != NULL) {
-    fprintf(srvr_debug, "IN (%ld bytes)\n", packet_bytes);
+    fprintf(srvr_debug, "IN (%d bytes)\n", packet_bytes);
   }
 
   if (packet_bytes >= buff_size) /* Must reallocate larger buffer */
@@ -3257,7 +3257,7 @@ Private bool read_packet() {
     buff_size = n;
 
     if (srvr_debug != NULL) {
-      fprintf(srvr_debug, "Resized buffer to %ld bytes\n", n);
+      fprintf(srvr_debug, "Resized buffer to %d bytes\n", n);
     }
   }
 
@@ -3321,7 +3321,7 @@ Private bool write_packet(int type, char* data, int32_t bytes) {
   }
 
   if (srvr_debug != NULL) {
-    fprintf(srvr_debug, "OUT (%ld bytes). Type %d\n", packet_header.length,
+    fprintf(srvr_debug, "OUT (%d bytes). Type %d\n", packet_header.length,
             (int)packet_header.type);
   }
 
@@ -3345,8 +3345,8 @@ Private bool write_packet(int type, char* data, int32_t bytes) {
    debug()  -  Debug function                                             */
 
 Private void debug(unsigned char* p, int n) {
-  int16_t i;
-  int16_t j;
+  int i;
+  int j;
   unsigned char c;
   char s[72 + 1];
   static char hex[] = "0123456789ABCDEF";
@@ -3385,7 +3385,7 @@ Private char* sysdir() {
   FILE* fu;
   char* p;
 
-  p = getenv("QMCONFIG");
+  p = getenv("SCARLET_CONFIG");  /* was QMCONFIG */ /* Issue #29 */
   if (p != NULL)
     strcpy(inipath, p);
   else

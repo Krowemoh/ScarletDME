@@ -21,6 +21,8 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  * 
  * START-HISTORY (ScarletDME):
+ * 09Jan22 gwb Fixed some format specifier warnings.
+ *
  * 29Feb20 gwb Changed LONG_MAX to INT32_MAX.  When building for a 64 bit 
  *             platform, the LONG_MAX constant overflows the size of the
  *             int32_t variable type.  This change needed to be made across
@@ -481,7 +483,7 @@ void op_fileinfo() {
           ts_init(&str, 5 * FILESTATS_COUNTERS);
           for (i = 0, q = (int32_t*)&(fptr->stats.reset);
                i < FILESTATS_COUNTERS; i++, q++) {
-            ts_printf("%ld\xfe", *q);
+            ts_printf("%d\xfe", *q);
           }
           (void)ts_terminate();
           k_dismiss(); /* 0363 */
@@ -650,14 +652,14 @@ void op_ospath() {
       n = (time(NULL) * 10) & 0xFFFFFFFL;
       do {
          /* converted to snprintf() -gwb 22Feb20 */
-        if (snprintf(name, MAX_PATHNAME_LEN + 1,"%s\\D%07lX", path, n) >= (MAX_PATHNAME_LEN +1 )) {
+        if (snprintf(name, MAX_PATHNAME_LEN + 1,"%s\\D%07d", path, n) >= (MAX_PATHNAME_LEN +1 )) {
             /* TODO: this should be logged to a file with more details */
             k_error("Overflowed path/filename length in delete_path()!");
             goto exit_op_pathinfo;
         }
         n--;
       } while (!access(name, 0));
-      sprintf(name, "D%07lX", n);
+      sprintf(name, "D%07d", n);
       k_put_c_string(name, e_stack);
       e_stack++;
       goto exit_op_pathinfo;
@@ -1086,7 +1088,7 @@ Private STRING_CHUNK* get_file_status(FILE_VAR* fvar) {
   ts_printf("%lld\xfe", file_size);
 
   /*  7  Hard links */
-  ts_printf("%d\xfe", statbuf.st_nlink);
+  ts_printf("%u\xfe", statbuf.st_nlink);
 
   /*  8  UID of owner */
   ts_printf("%d\xfe", statbuf.st_uid);
@@ -1095,10 +1097,10 @@ Private STRING_CHUNK* get_file_status(FILE_VAR* fvar) {
   ts_printf("%d\xfe", statbuf.st_gid);
 
   /* 10  Inode number */
-  ts_printf("%d\xfe", statbuf.st_ino);
+  ts_printf("%u\xfe", statbuf.st_ino);
 
   /* 11  Device number */
-  ts_printf("%d\xfe", statbuf.st_dev);
+  ts_printf("%u\xfe", statbuf.st_dev);
 
   /* 12  Not used */
   ts_printf("\xfe");

@@ -21,6 +21,10 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  * 
  * START-HISTORY (ScarletDME):
+ * 15Jan22 gwb Fixed argument formatting issues (CwE-686) 
+ * 
+ * 11Jan22 gwb Fix for Issue #13 ("Uncontrolled format string")
+ * 
  * 28Feb20 gwb Changed integer declarations to be portable across address
  *             space sizes (32 vs 64 bit)
  *
@@ -181,7 +185,7 @@ void k_illegal_call_name() {
 
 void k_error(char* message, ...) {
   int32_t failing_offset;
-  char s[(3 * 80) + 1]; /* Max 3 lines */
+  char s[(MAX_ERROR_LINES * MAX_EMSG_LEN) + 1]; /* Max 3 lines */
   va_list arg_ptr;
   int16_t n;
   int line;
@@ -220,7 +224,7 @@ void k_error(char* message, ...) {
     pgm = &process.program;
     while (pgm->flags & HDR_RECURSIVE) {
       if (internal_mode) {
-        tio_printf("%08lX in %s \n", xpc_offset - 1,
+        tio_printf("%08X in %s \n", xpc_offset - 1,
                    ((OBJECT_HEADER*)xcbase)->ext_hdr.prog.program_name);
       }
 
@@ -230,13 +234,14 @@ void k_error(char* message, ...) {
     }
 
     failing_offset = xpc_offset - 1;
-    n = sprintf(s, "%08lX: ", failing_offset);
+    n = sprintf(s, "%08X: ", failing_offset);
   } else {
     n = 0;
   }
 
   va_start(arg_ptr, message);
-  vsprintf(&(s[n]), message, arg_ptr);
+  /* Fix for Issue #13.  Converted a vsprintf() to vsnprintf(). -gwb */
+  vsnprintf(&(s[n]), (MAX_ERROR_LINES + MAX_EMSG_LEN) + 1,  message, arg_ptr);
   va_end(arg_ptr);
 
   if (c_base == NULL) /* No object currently loaded */
@@ -540,9 +545,9 @@ found:
 
       default: /* Some other element */
         if (cols == 0)
-          sprintf((char*)q, "(%ld)", element);
+          sprintf((char*)q, "(%d)", element);
         else
-          sprintf((char*)q, "(%ld,%ld)", ((element - 1) / cols) + 1,
+          sprintf((char*)q, "(%d,%d)", ((element - 1) / cols) + 1,
                   ((element - 1) % cols) + 1);
         break;
     }
@@ -621,7 +626,7 @@ void log_message(char* msg) {
       if (my_uptr != NULL) {
         bytes = sprintf(
             buff,
-            "%02d %.3s %02d %02d:%02d:%02d User %d (pid %ld, %s):%s   %s%s",
+            "%02d %.3s %02d %02d:%02d:%02d User %d (pid %d, %s):%s   %s%s",
             ltime->tm_mday, month_names[ltime->tm_mon], ltime->tm_year % 100,
             ltime->tm_hour, ltime->tm_min, ltime->tm_sec, my_uptr->uid,
             my_uptr->pid, my_uptr->username, Newline, msg, Newline);

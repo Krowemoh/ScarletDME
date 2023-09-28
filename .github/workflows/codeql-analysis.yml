@@ -9,14 +9,26 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
+<<<<<<< HEAD
+=======
+# 11Jan22 gwb Copied from master branch.
+#
+>>>>>>> upstream/dev
 name: "CodeQL"
 
 on:
   push:
+<<<<<<< HEAD
     branches: [ master ]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ master ]
+=======
+    branches: [ dev ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ dev ]
+>>>>>>> upstream/dev
   schedule:
     - cron: '17 13 * * 1'
 

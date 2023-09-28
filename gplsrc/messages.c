@@ -21,6 +21,15 @@
  * ScarletDME Wiki: https://scarlet.deltasoft.com
  *
  * START-HISTORY (ScarletDME):
+ * 01Feb23 njs sysmsg replace new line characters with @FM in message
+ *             remove trailing new line if present
+ *             remove problematic use of strcpy in sysmsg
+ * 31Mar22 rdm Updated sysmsg to close the msg_rec with returning to 
+ *             prevent max open files error
+ * 11Jan22 gwb Removed goto calls.
+ * 
+ * 09Jan22 gwb Fixed a format specifier warning.
+ *
  * 28Feb20 gwb Changed integer declarations to be portable across address
  *             space sizes (32 vs 64 bit)
  * 
@@ -98,8 +107,7 @@ bool load_language(char* language_prefix) {
 
   strcpy(prefix, language_prefix);
 
-  if (loaded) /* Free old memory */
-  {
+  if (loaded) { /* Free old memory */
     k_free(month_names[0]);
     k_free(day_names[0]);
   }
@@ -109,6 +117,7 @@ bool load_language(char* language_prefix) {
   p = sysmsg(1500); /* TODO: Magic numbers are bad, mmkay? */
   if ((*p == '[') || (strdcount(p, ',') != 12))
     p = default_months; /* 0289 */
+
   month_names[0] = (char*)k_alloc(83, strlen(p) + 1);
   strcpy(month_names[0], p);
   (void)strtok(month_names[0], ",");
@@ -141,6 +150,7 @@ char* sysmsg(int msg_no) {
   int n;            /* A random tmp var by Ladybridge */
   int msg_rec = -1; /* The message record FileHandle */
   char* p;
+  char* q;
   /* STRING_CHUNK* q; unused variable */
   struct stat msg_stat; /* Holds Dir records files stats */
   int status;
@@ -155,11 +165,12 @@ char* sysmsg(int msg_no) {
       /* TODO: this should be sent to the system log. */
       k_error("Overflowed directory/filename path length in sysmsg()!");
       message = "";
-      goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      //goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      return message;
     }
     msg_file = open(path, O_RDONLY);
     if (msg_file < 0) {
-      sprintf(message, "[%d] Message file not found(%d %ld).", msg_no, dh_err,
+      sprintf(message, "[%d] Message file not found(%d %d).", msg_no, dh_err,
               process.os_error);
       return message;
     }
@@ -175,7 +186,8 @@ char* sysmsg(int msg_no) {
       /* TODO: this should be sent to the system log. */
       k_error("Overflowed directory/filename path length in sysmsg()!");
       message = "";
-      goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      // goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      return message; /* ...and un-died! */
     }
     msg_rec = open(path, O_RDONLY);
   }
@@ -189,7 +201,8 @@ char* sysmsg(int msg_no) {
       /* TODO: this should be sent to the system log. */
       k_error("Overflowed directory/filename path length in sysmsg()!");
       message = "";
-      goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      // goto exit_sysmsg;  /* I died inside adding this. -gwb */
+      return message;  /* and un-died. */
     }
     msg_rec = open(path, O_RDONLY);
   }
@@ -200,8 +213,7 @@ char* sysmsg(int msg_no) {
     int msg_size = msg_stat.st_size;
 
     /* Check buffer size */
-    if (msg_size > message_len) /* Must increase buffer size */
-    {
+    if (msg_size > message_len) { /* Must increase buffer size */
       k_free(message); /* Release old buffer */
 
       n = (msg_size & ~127) +
@@ -216,27 +228,59 @@ char* sysmsg(int msg_no) {
     /*printf("FILE (%s) %d\n", path, msg_size);*/
   }
 
-  if (msg_rec < 0 || status < 0) /* Either open or read failed */
-  {
+  if (msg_rec < 0 || status < 0) { /* Either open or read failed */
     sprintf(message, "[%s] Message not found", id);
   }
+  /* njs - 01Feb23 mimic how basic program would read DIRECTORY_FILE via VM */
+  /* consult op_dio3.2 read_record() */
+  /* first remove trailing new line  */
+  message_len = strlen(message);
+   if (message[message_len-1] == '\n')
+    message[message_len-1] = '\0';
+  /* njs - 01Feb23 Walk through and replace newlines by field marks. */
+  p = message;
+  n = strlen(message);
+  do{
+    q = memchr(p, '\n', n);
+    if (q == NULL)
+       break;
+    *q = FIELD_MARK;
+    n -= (q + 1 - p);  /* bytes remaining */
+    p = q + 1;         /* next byte to start memchr at */
+    } while (n);
 
   /* Replace any embedded newline and tab codes */
+  /* njs 01Feb23 note old code violates:       */
+  /*  char *strcpy(char *restrict s1, const char *restrict s2) */
+  /* restrict in this case indicates that the caller promises  */
+  /* that the two buffers in question do not overlap.          */
+  /* And it does fail on 64bit linux! (atleast ubuntu 22.04    */
   p = message;
   while ((p = strchr(p, '\\')) != NULL) {
     switch (*(p + 1)) {
       case 'n':
         *p = '\n';
-        strcpy(p + 1, p + 2);
+      /*  strcpy(p + 1, p + 2); */
+        memmove(p + 1, p + 2, strlen(p+2));
+      /* get ride of dublicate last character */
+        p[strlen(p)-1] = '\0';
         break;
       case 't':
         *p = '\t';
-        strcpy(p + 1, p + 2);
+        /*  strcpy(p + 1, p + 2); */
+        memmove(p + 1, p + 2, strlen(p+2));
+        /* get ride of dublicate last character */
+        p[strlen(p)-1] = '\0';
         break;
     }
     p++;
   }
-exit_sysmsg:
+
+   /* rdm - 03/31/22
+   *If you don't close the message recs at this point they will stay open forever
+   *and give you greif causing the system into run into max open files*/
+  close(msg_rec);
+
   return message;
 }
 

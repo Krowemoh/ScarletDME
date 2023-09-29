@@ -44,13 +44,13 @@ OBJECTS = $(patsubst gplsrc/%.c, gplobj/%.o, $(SOURCES))
 
 qm: ARCH :=
 qm: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE -fPIC -MMD -MF $(DEPDIR)/$*.d
-qm: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
+qm: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd terminfo
 	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
 qm32: ARCH := -m32
 qm32: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -MMD -MF $(DEPDIR)/$*.d
-qm32: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
+qm32: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd terminfo
 	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
@@ -73,6 +73,11 @@ $(GPLBIN)qmidx: $(GPLOBJ)qmidx.o
 $(GPLBIN)qmlnxd: $(GPLOBJ)qmlnxd.o $(GPLOBJ)qmsem.o
 	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmlnxd.o $(GPLOBJ)qmsem.o -o $(GPLBIN)qmlnxd
 
+terminfo: $(GPLBIN)qmtic	
+	@echo Compiling terminfo library
+	@test -d qmsys/terminfo || mkdir qmsys/terminfo
+	cd qmsys && $(GPLBIN)qmtic -pterminfo $(MAIN)utils/terminfo.src
+
 gplobj/%.o: gplsrc/%.c
 	@mkdir -p $(GPLOBJ)
 	@mkdir -p $(DEPDIR)
@@ -91,10 +96,6 @@ ifeq ($(QMSYS),)
 	@($(USERADD)) --system qmsys --gid qmusers
 endif
 endif
-
-	@echo Compiling terminfo library
-	@test -d qmsys/terminfo || mkdir qmsys/terminfo
-	cd qmsys && $(GPLBIN)qmtic -pterminfo utils/terminfo.src
 
 	@echo Installing to $(INSTROOT)
 	@rm -Rf $(INSTROOT)

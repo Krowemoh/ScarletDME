@@ -1,12 +1,10 @@
 # ScarletDME
 
-ScarletDME is a fork of OpenQM 2.6.
-
-This fork is one where I am adding and modifying things to work for me. The changes are listed below.
+This is a heavily reorganized fork of [Gene's ScarletDME repo](https://github.com/geneb/ScarletDME).
 
 ## Installation
 
-Below are the prerequisite packages you may need to install as this version of ScarletDME is 32 bit.
+Installation should be straightforward. There is a 32 bit target as well but the default is 64bit.
 
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git
@@ -22,29 +20,14 @@ sudo systemctl start scarletdme
 sudo systemctl enable scarletdme
 ```
 
-Add a user to the qmusers group to allow access to ScarletDME:
+To test:
 
 ```
-sudo usermod -a -G qmusers username
+cd /usr/qmsys
+qm
 ```
 
-## Prerequisites
-
-Below are the prerequisite packages you may need to install as this version of ScarletDME is 32 bit.
-
-### Debian and Ubuntu
-
-```
-sudo dpkg --add-architecture i386
-sudo apt-get update
-sudo apt-get install gcc-multilib libcrypt-dev:i386 libssl-dev:i386
-```
-
-### CentOS and Red Hat
-
-```
-yum install openssl-devel.i686
-```
+This should put you at the tcl.
 
 ## Platforms
 
@@ -58,10 +41,14 @@ These platforms require some work as the Makefile doesn't support them.
 - Alpine Linux
 - Tiny Core Linux
 
-## changelog
+## Fork Specific Changelog
+
+This is a list of what I've done since forking.
 
 ```
 31 JUL 2023 - Hardcoded the terminal type.  
 05 AUG 2023 - Added BigNumber support.  
 21 AUG 2023 - Updated the Makefile to be more similar to the 64bit version.  
+27 SEP 2023 - Merge with upstream/dev to get 64 bit changes.
+29 SEP 2023 - Simplify the Makefile and reorganize project
 ```

@@ -96,10 +96,10 @@ ifeq ($(USERMOD),)
 else
 	@usermod -a -G qmusers root
 endif
+endif
 
 ifeq ($(QMSYS),)
-	@$(USERADD) --system qmsys --gid qmusers
-endif
+	@$(USERADD) --system qmsys -G qmusers
 endif
 
 	@echo Installing to $(INSTROOT)

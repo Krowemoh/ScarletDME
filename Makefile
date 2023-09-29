@@ -142,7 +142,7 @@ endif
 endif
 
 clean:
-	@rm -f $(GPLOBJ)*.o
-	@rm -f $(DEPDIR)*.d
-	@rm -f $(GPLBIN)*
+	@rm -Rf $(GPLOBJ)
+	@rm -Rf $(DEPDIR)
+	@rm -Rf $(GPLBIN)
 	@rm -Rf qmsys/terminfo

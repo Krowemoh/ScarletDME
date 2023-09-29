@@ -111,6 +111,7 @@ endif
 
 	@ mkdir $(INSTROOT)/bin
 	@cp bin/* $(INSTROOT)/bin
+	@cp utils/pcode $(INSTROOT)/bin/pcode
 	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
 	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*
 

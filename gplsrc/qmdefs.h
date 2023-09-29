@@ -68,10 +68,10 @@
 #if __BYTE_ORDER__ == __BIG_ENDIAN__
 #define BIG_ENDIAN_SYSTEM
 #endif
-#ifdef __APPLE__
-extern char **environ;
-#else
+#ifdef __GLIBC__
 #define environ __environ
+#else
+extern char **environ;
 #endif
 
 #define Seek(fu, offset, whence) lseek(fu, offset, whence)

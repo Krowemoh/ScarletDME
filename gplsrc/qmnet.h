@@ -44,9 +44,13 @@
 
 #ifdef __APPLE__
 #include <termios.h>
-#else
+#elif defined(__GLIBC__)
 #include <termio.h>
+#else
+#include <termios.h>
+#include <sys/ioctl.h>
 #endif
+
 #include <netdb.h>
 #include <arpa/inet.h>
 #define PASSWD_FILE_NAME "/etc/shadow"

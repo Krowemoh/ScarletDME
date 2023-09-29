@@ -1,13 +1,20 @@
 # default target builds 64-bit, build qm32 target for a 32-bit build
 
+COMP     := gcc
+OSNAME   := $(shell uname -s)
+
 GROUPADD := $(shell command -v adduser 2> /dev/null || command -v groupadd 2> /dev/null)
 USERADD := $(shell command -v addgroup 2> /dev/null || command -v useradd 2> /dev/null)
+
+QMSYS   := $(shell cat /etc/passwd | grep qmsys)
+QMUSERS := $(shell cat /etc/group | grep qmusers)
 
 MAIN     := $(shell pwd)/
 GPLSRC   := $(MAIN)gplsrc/
 GPLDOTSRC := $(MAIN)gpl.src
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
+DEPDIR := $(MAIN)deps/
 
 ifneq ($(wildcard /usr/lib/systemd/system/.),)
 	SYSTEMDPATH := /usr/lib/systemd/system
@@ -15,14 +22,8 @@ else
 	SYSTEMDPATH := /lib/systemd/system
 endif
 
-OSNAME   := $(shell uname -s)
-
-COMP     := gcc
-
 ifeq (Darwin,$(OSNAME))
-	ARCH :=
-	C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH)
-	L_FLAGS  := -lm -ldl
+	L_FLAGS  := -lm -ldl -lcrypto
 	INSTROOT := /opt/qmsys
 	SONAME_OPT := -install_name
 else
@@ -34,23 +35,21 @@ endif
 QMSRCS   := $(shell cat $(GPLDOTSRC))
 QMTEMP   := $(addsuffix .o,$(QMSRCS))
 QMOBJSD  := $(addprefix $(GPLOBJ),$(QMTEMP))
-QMSYS   := $(shell cat /etc/passwd | grep qmsys)
-QMUSERS := $(shell cat /etc/group | grep qmusers)
-
-DEPDIR := ./deps/
 
 SOURCES := $(filter-out gplsrc/qmclient.c, $(wildcard gplsrc/*.c))
 OBJECTS = $(patsubst gplsrc/%.c, gplobj/%.o, $(SOURCES))
 
+TARGETS = $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd terminfo
+
+C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE -fPIC -MMD -MF $(DEPDIR)/$*.d
+
 qm: ARCH :=
-qm: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE -fPIC -MMD -MF $(DEPDIR)/$*.d
-qm: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd terminfo
+qm: $(TARGETS)
 	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
 qm32: ARCH := -m32
-qm32: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -MMD -MF $(DEPDIR)/$*.d
-qm32: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd terminfo
+qm32: $(TARGETS)
 	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
@@ -84,8 +83,6 @@ gplobj/%.o: gplsrc/%.c
 	$(COMP) $(C_FLAGS) -c $< -o $@
 
 -include $(DEPDIR)/*.d
-
-.PHONY: clean install
 
 install:  
 ifeq ($(QMUSERS),)

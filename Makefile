@@ -109,7 +109,7 @@ endif
 	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*
 
 	@echo Writing scarlet.conf file
-	@cp $(main)scarlet.conf /etc/scarlet.conf
+	@cp utils/scarlet.conf /etc/scarlet.conf
 	@chmod 644 /etc/scarlet.conf
 
 #	Create symbolic link if it does not exist
@@ -118,7 +118,7 @@ endif
 #	Install systemd configuration file if needed.
 ifneq ($(wildcard $(SYSTEMDPATH)/.),)
 	@echo Installing scarletdme.service for systemd.
-	@cp usr/lib/systemd/system/* $(SYSTEMDPATH)
+	@cp utils/scarletdme* $(SYSTEMDPATH)
 	@chown root:root $(SYSTEMDPATH)/scarletdme.service
 	@chown root:root $(SYSTEMDPATH)/scarletdmeclient.socket
 	@chown root:root $(SYSTEMDPATH)/scarletdmeclient@.service
@@ -134,11 +134,11 @@ endif
 #	Install xinetd files if required
 ifneq ($(wildcard /etc/xinetd.d/.),)
 	@echo Installing xinetd files
-	@cp etc/xinetd.d/qmclient /etc/xinetd.d
-	@cp etc/xinetd.d/qmserver /etc/xinetd.d
+	@cp utils/qmclient /etc/xinetd.d
+	@cp utils/qmserver /etc/xinetd.d
 ifneq ($(wildcard /etc/services),)
 ifeq ($(shell cat /etc/services | grep qmclient),)
-	@cat etc/xinetd.d/services >> /etc/services
+	@cat utils/services >> /etc/services
 endif
 endif
 endif

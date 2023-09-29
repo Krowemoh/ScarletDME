@@ -12,6 +12,7 @@ QMUSERS := $(shell cat /etc/group | grep qmusers)
 MAIN     := $(shell pwd)/
 GPLSRC   := $(MAIN)gplsrc/
 GPLDOTSRC := $(MAIN)utils/gpl.src
+
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
 DEPDIR := $(MAIN)deps/
@@ -78,6 +79,7 @@ terminfo: $(GPLBIN)qmtic
 	cd qmsys && $(GPLBIN)qmtic -pterminfo $(MAIN)utils/terminfo.src
 
 gplobj/%.o: gplsrc/%.c
+	@mkdir -p $(GPLBIN)
 	@mkdir -p $(GPLOBJ)
 	@mkdir -p $(DEPDIR)
 	$(COMP) $(C_FLAGS) -c $< -o $@
@@ -110,10 +112,8 @@ endif
 	@cp utils/scarlet.conf /etc/scarlet.conf
 	@chmod 644 /etc/scarlet.conf
 
-#	Create symbolic link if it does not exist
 	@test -f /usr/bin/qm || ln -s /usr/qmsys/bin/qm /usr/bin/qm
 
-#	Install systemd configuration file if needed.
 ifneq ($(wildcard $(SYSTEMDPATH)/.),)
 	@echo Installing scarletdme.service for systemd.
 	@cp utils/scarletdme* $(SYSTEMDPATH)
@@ -129,7 +129,6 @@ ifneq ($(wildcard $(SYSTEMDPATH)/.),)
 	@chmod 644 $(SYSTEMDPATH)/scarletdmeserver@.service
 endif
 
-#	Install xinetd files if required
 ifneq ($(wildcard /etc/xinetd.d/.),)
 	@echo Installing xinetd files
 	@cp utils/qmclient /etc/xinetd.d

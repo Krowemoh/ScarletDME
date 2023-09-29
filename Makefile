@@ -8,8 +8,6 @@ GPLSRC   := $(MAIN)gplsrc/
 GPLDOTSRC := $(MAIN)gpl.src
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
-TERMINFO := $(MAIN)qmsys/terminfo/
-VPATH    := $(GPLOBJ):$(GPLBIN):$(GPLSRC)
 
 ifneq ($(wildcard /usr/lib/systemd/system/.),)
 	SYSTEMDPATH := /usr/lib/systemd/system
@@ -23,7 +21,6 @@ COMP     := gcc
 
 ifeq (Darwin,$(OSNAME))
 	ARCH :=
-	BITSIZE := 64
 	C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH)
 	L_FLAGS  := -lm -ldl
 	INSTROOT := /opt/qmsys
@@ -46,14 +43,12 @@ SOURCES := $(filter-out gplsrc/qmclient.c, $(wildcard gplsrc/*.c))
 OBJECTS = $(patsubst gplsrc/%.c, gplobj/%.o, $(SOURCES))
 
 qm: ARCH :=
-qm: BITSIZE := 64
 qm: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE -fPIC -MMD -MF $(DEPDIR)/$*.d
 qm: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
 	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
 qm32: ARCH := -m32
-qm32: BITSIZE := 32
 qm32: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -MMD -MF $(DEPDIR)/$*.d
 qm32: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
 	@echo "Linking qm."
@@ -102,43 +97,13 @@ endif
 	cd qmsys && $(GPLBIN)qmtic -pterminfo $(MAIN)terminfo.src
 
 	@echo Installing to $(INSTROOT)
-ifeq ($(wildcard $(INSTROOT)/.),)
-#	qmsys doesn't exist, so copy it to the live location
+	@rm -Rf $(INSTROOT)
 	cp -R qmsys $(INSTROOT)
 	chown -R qmsys:qmusers $(INSTROOT)
 	chmod -R 664 $(INSTROOT)
 	find $(INSTROOT) -type d -print0 | xargs -0 chmod 775
 
-	@rm -Rf $(INSTROOT)/terminfo/*
-	@cp -R qmsys/terminfo/* $(INSTROOT)/terminfo
-	@chown -R qmsys:qmusers $(INSTROOT)/terminfo
-	@chmod 774 $(INSTROOT)/terminfo/*
-#	else update everything that's changed, eg NEWVOC, MESSAGES, all that sort of stuff.
-else
-#	copy FILEs that need updating
-#	copy the contents of NEWVOC so the account will upgrade
-	@rm -f $(INSTROOT)/NEWVOC/*
-	@cp qmsys/NEWVOC/* $(INSTROOT)/NEWVOC
-	@chown qmsys:qmusers $(INSTROOT)/NEWVOC/*
-	@chmod 664 $(INSTROOT)/NEWVOC/*
-
-#	copy the contents of MESSAGES so the account will upgrade
-	@rm -f $(INSTROOT)/MESSAGES/*
-	@cp qmsys/MESSAGES/* $(INSTROOT)/MESSAGES
-	@chown qmsys:qmusers $(INSTROOT)/MESSAGES/*
-	@chmod 664 $(INSTROOT)/MESSAGES/*
-
-#	copy the contents of terminfo so the account will upgrade
-	@rm -Rf $(INSTROOT)/terminfo/*
-	@cp -R qmsys/terminfo/* $(INSTROOT)/terminfo
-	@chown -R qmsys:qmusers $(INSTROOT)/terminfo
-	@chmod 774 $(INSTROOT)/terminfo/*
-
-endif
-#       copy bin files and make them executable
-	@test -d $(INSTROOT)/bin || mkdir $(INSTROOT)/bin
-#	copy the contents of bin so the account will upgrade
-	@rm -f $(INSTROOT)/bin/*
+	@ mkdir $(INSTROOT)/bin
 	@cp bin/* $(INSTROOT)/bin
 	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
 	chmod 775 $(INSTROOT)/bin $(INSTROOT)/bin/*
@@ -182,4 +147,4 @@ clean:
 	@rm -f $(GPLOBJ)*.o
 	@rm -f $(DEPDIR)*.d
 	@rm -f $(GPLBIN)*
-#@rm -f $(GPLSRC)terminfo
+	@rm -f qmsys/terminfo

@@ -2,6 +2,7 @@ bin/*
 deps/*
 gplobj/*
 stacks/*
+qmsys/terminfo/*/*
 
 # Workspace files to exclude. IDE's, etc.
 .idea/**

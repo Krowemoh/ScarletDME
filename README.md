@@ -13,21 +13,21 @@ make
 sudo make install
 ```
 
-To start and enable ScarletDME on boot:
+Enable ScarletDME on boot:
 
 ```
-sudo systemctl start scarletdme
 sudo systemctl enable scarletdme
 ```
 
-To test:
+Start ScarletDME:
 
 ```
+sudo systemctl start scarletdme
 cd /usr/qmsys
 qm
 ```
 
-This should put you at the tcl.
+You should now be at TCL.
 
 ## Platforms
 

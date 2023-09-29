@@ -34,112 +34,58 @@ else
 	SONAME_OPT := -soname
 endif
 
-QMHDRS   := $(wildcard *.h)
 QMSRCS   := $(shell cat $(GPLDOTSRC))
 QMTEMP   := $(addsuffix .o,$(QMSRCS))
-QMOBJS   := $(QMTEMP)
 QMOBJSD  := $(addprefix $(GPLOBJ),$(QMTEMP))
-TEMPSRCS := $(wildcard *.c)
-SRCS     := $(TEMPSRCS:qmclient.c=)
-OBJS     := $(SRCS:.c=.o)
-DIROBJS  := $(addprefix $(GPLOBJ),$(OBJS))
 QMSYS   := $(shell cat /etc/passwd | grep qmsys)
 QMUSERS := $(shell cat /etc/group | grep qmusers)
 
+DEPDIR := ./deps/
+
+SOURCES := $(filter-out gplsrc/qmclient.c, $(wildcard gplsrc/*.c))
+OBJECTS = $(patsubst gplsrc/%.c, gplobj/%.o, $(SOURCES))
+
 qm: ARCH :=
 qm: BITSIZE := 64
-qm: C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE
-qm: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd
-	@echo Linking $@
-	@cd $(GPLOBJ)
+qm: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -fPIE -fPIC -MMD -MF $(DEPDIR)/$*.d
+qm: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
+	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
 qm32: ARCH := -m32
 qm32: BITSIZE := 32
-qm32: C_FLAGS  := -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH)
-qm32: $(QMOBJS) qmclilib.so qmtic qmfix qmconv qmidx qmlnxd
-	@echo Linking $@
+qm32: C_FLAGS = -Wall -Wformat=2 -Wno-format-nonliteral -DLINUX -D_FILE_OFFSET_BITS=64 -I$(GPLSRC) -DGPL -g $(ARCH) -MMD -MF $(DEPDIR)/$*.d
+qm32: $(OBJECTS) $(GPLBIN)qmclilib.so $(GPLBIN)qmtic $(GPLBIN)qmfix $(GPLBIN)qmconv $(GPLBIN)qmidx $(GPLBIN)qmlnxd
+	@echo "Linking qm."
 	@$(COMP) $(ARCH) $(L_FLAGS) $(QMOBJSD) -o $(GPLBIN)qm
 
-qmclilib.so: qmclilib.o
-	@echo Linking $@
-	@$(COMP) -shared -Wl,$(SONAME_OPT),qmclilib.so -lc $(ARCH) $(GPLOBJ)qmclilib.o -o $(GPLBIN)qmclilib.so
-	@$(COMP) -shared -Wl,$(SONAME_OPT),libqmcli.so -lc $(ARCH) $(GPLOBJ)qmclilib.o -o $(GPLBIN)libqmcli.so
+$(GPLBIN)qmclilib.so: $(GPLOBJ)qmclilib.o
+	$(COMP) -shared -Wl,$(SONAME_OPT),qmclilib.so -lc $(ARCH) $(GPLOBJ)qmclilib.o -o $(GPLBIN)qmclilib.so
+	$(COMP) -shared -Wl,$(SONAME_OPT),libqmcli.so -lc $(ARCH) $(GPLOBJ)qmclilib.o -o $(GPLBIN)libqmcli.so
 
-qmtic: qmtic.o inipath.o
-	@echo Linking $@
-	@$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmtic.o $(GPLOBJ)inipath.o -o $(GPLBIN)qmtic
+$(GPLBIN)qmtic: $(GPLOBJ)qmtic.o $(GPLOBJ)inipath.o
+	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmtic.o $(GPLOBJ)inipath.o -o $(GPLBIN)qmtic
 
-qmfix: qmfix.o ctype.o linuxlb.o dh_hash.o inipath.o
-	@echo Linking $@
-	@$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmfix.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o $(GPLOBJ)inipath.o -o $(GPLBIN)qmfix
+$(GPLBIN)qmfix: $(GPLOBJ)qmfix.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o $(GPLOBJ)inipath.o
+	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmfix.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o $(GPLOBJ)inipath.o -o $(GPLBIN)qmfix
 
-qmconv: qmconv.o ctype.o linuxlb.o dh_hash.o
-	@echo Linking $@
-	@$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmconv.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o -o $(GPLBIN)qmconv
+$(GPLBIN)qmconv: $(GPLOBJ)qmconv.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o
+	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmconv.o $(GPLOBJ)ctype.o $(GPLOBJ)linuxlb.o $(GPLOBJ)dh_hash.o -o $(GPLBIN)qmconv
 
-qmidx: qmidx.o
-	@echo Linking $@
-	@$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmidx.o -o $(GPLBIN)qmidx
+$(GPLBIN)qmidx: $(GPLOBJ)qmidx.o
+	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmidx.o -o $(GPLBIN)qmidx
 
-qmlnxd: qmlnxd.o qmsem.o
-	@echo Linking $@
-	@$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmlnxd.o $(GPLOBJ)qmsem.o -o $(GPLBIN)qmlnxd
+$(GPLBIN)qmlnxd: $(GPLOBJ)qmlnxd.o $(GPLOBJ)qmsem.o
+	$(COMP) $(C_FLAGS) -lc $(GPLOBJ)qmlnxd.o $(GPLOBJ)qmsem.o -o $(GPLBIN)qmlnxd
 
-qmclilib.o: qmclilib.c revstamp.h
-	@echo Compiling $@ with -fPIC
-	@$(COMP) $(C_FLAGS) -fPIC -c $(GPLSRC)qmclilib.c -o $(GPLOBJ)qmclilib.o
+gplobj/%.o: gplsrc/%.c
+	@mkdir -p $(GPLOBJ)
+	@mkdir -p $(DEPDIR)
+	$(COMP) $(C_FLAGS) -c $< -o $@
 
-# We need to make sure that anything that includes revstamp.h gets built if revstamp.h 
-# changes.
+-include $(DEPDIR)/*.d
 
-config.o: config.c config.h qm.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)config.o
-
-kernel.o: kernel.c qm.h revstamp.h header.h tio.h debug.h keys.h syscom.h config.h \
-	options.h dh_int.h locks.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)kernel.o
-
-op_kernel.o: op_kernel.c qm.h revstamp.h header.h tio.h debug.h keys.h syscom.h \
-	config.h options.h dh_int.h locks.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)op_kernel.o
-
-op_sys.o: op_sys.c qm.h header.h tio.h syscom.h dh_int.h revstamp.h config.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)op_sys.o
-
-pdump.o: pdump.c qm.h header.h syscom.h config.h revstamp.h locks.h dh_int.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)pdump.o
-
-qm.o:	qm.c qm.h revstamp.h header.h debug.h dh_int.h tio.h config.h options.h \
-	locks.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qm.o 
-
-qmclient.o: qmclient.c qmdefs.h revstamp.h qmclient.h err.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qmclient.o
-
-qmconv.o: qmconv.c qm.h dh_int.h header.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qmconv.o
-
-qmfix.o: qmfix.c qm.h dh_int.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qmfix.o
-
-qmidx.o: qmidx.c qm.h dh_int.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qmidx.o
-
-qmtic.o: qmtic.c ti_names.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)qmtic.o
-
-sysdump.o: sysdump.c qm.h locks.h revstamp.h config.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)sysdump.o
-
-sysseg.o: sysseg.c qm.h locks.h config.h revstamp.h
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)sysseg.o
-
-.c.o:
-	@echo Compiling $@, $(BITSIZE) bit target.
-	@$(COMP) $(C_FLAGS) -c $< -o $(GPLOBJ)$@
-
-.PHONY: clean install qmdev qmstop
+.PHONY: clean install
 
 install:  
 ifeq ($(QMUSERS),)
@@ -162,6 +108,11 @@ ifeq ($(wildcard $(INSTROOT)/.),)
 	chown -R qmsys:qmusers $(INSTROOT)
 	chmod -R 664 $(INSTROOT)
 	find $(INSTROOT) -type d -print0 | xargs -0 chmod 775
+
+	@rm -Rf $(INSTROOT)/terminfo/*
+	@cp -R qmsys/terminfo/* $(INSTROOT)/terminfo
+	@chown -R qmsys:qmusers $(INSTROOT)/terminfo
+	@chmod 774 $(INSTROOT)/terminfo/*
 #	else update everything that's changed, eg NEWVOC, MESSAGES, all that sort of stuff.
 else
 #	copy FILEs that need updating
@@ -180,8 +131,8 @@ else
 #	copy the contents of terminfo so the account will upgrade
 	@rm -Rf $(INSTROOT)/terminfo/*
 	@cp -R qmsys/terminfo/* $(INSTROOT)/terminfo
-	@chown qmsys:qmusers $(INSTROOT)/terminfo/*
-	@chmod 664 $(INSTROOT)/terminfo/*
+	@chown -R qmsys:qmusers $(INSTROOT)/terminfo
+	@chmod 774 $(INSTROOT)/terminfo/*
 
 endif
 #       copy bin files and make them executable
@@ -229,7 +180,6 @@ endif
 
 clean:
 	@rm -f $(GPLOBJ)*.o
-
-distclean: clean
+	@rm -f $(DEPDIR)*.d
 	@rm -f $(GPLBIN)*
-	@rm -f $(GPLSRC)terminfo
+#@rm -f $(GPLSRC)terminfo

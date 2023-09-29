@@ -1,13 +1,6 @@
-gplobj/*.o
-bin/qm
-bin/libqmcli.so
-bin/qm
-bin/qmclilib.so
-bin/qmconv
-bin/qmfix
-bin/qmidx
-bin/qmlnxd
-bin/qmtic
+bin/*
+deps/*
+gplobj/*
 stacks/*
 
 # Workspace files to exclude. IDE's, etc.

@@ -147,4 +147,4 @@ clean:
 	@rm -f $(GPLOBJ)*.o
 	@rm -f $(DEPDIR)*.d
 	@rm -f $(GPLBIN)*
-	@rm -f qmsys/terminfo
+	@rm -Rf qmsys/terminfo

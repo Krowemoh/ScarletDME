@@ -5,6 +5,7 @@ OSNAME   := $(shell uname -s)
 
 GROUPADD := $(shell command -v addgroup 2> /dev/null || command -v groupadd 2> /dev/null)
 USERADD := $(shell command -v adduser 2> /dev/null || command -v useradd 2> /dev/null)
+USERMOD := $(shell command -v usermod 2> /dev/null)
 
 QMSYS   := $(shell cat /etc/passwd | grep qmsys)
 QMUSERS := $(shell cat /etc/group | grep qmusers)
@@ -89,10 +90,15 @@ gplobj/%.o: gplsrc/%.c
 install:  
 ifeq ($(QMUSERS),)
 	@echo Creating qm system user and group
-	@($(GROUPADD)) --system qmusers
+	@$(GROUPADD) --system qmusers
+ifeq ($(USERMOD),)
+	@adduser root qmusers
+else
 	@usermod -a -G qmusers root
+endif
+
 ifeq ($(QMSYS),)
-	@($(USERADD)) --system qmsys --gid qmusers
+	@$(USERADD) --system qmsys --gid qmusers
 endif
 endif
 

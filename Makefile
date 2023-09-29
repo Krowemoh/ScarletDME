@@ -94,7 +94,7 @@ endif
 
 	@echo Compiling terminfo library
 	@test -d qmsys/terminfo || mkdir qmsys/terminfo
-	cd qmsys && $(GPLBIN)qmtic -pterminfo $(MAIN)terminfo.src
+	cd qmsys && $(GPLBIN)qmtic -pterminfo utils/terminfo.src
 
 	@echo Installing to $(INSTROOT)
 	@rm -Rf $(INSTROOT)

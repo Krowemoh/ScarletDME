@@ -34,8 +34,6 @@ else
 	SONAME_OPT := -soname
 endif
 
-RM       := rm
-
 QMHDRS   := $(wildcard *.h)
 QMSRCS   := $(shell cat $(GPLDOTSRC))
 QMTEMP   := $(addsuffix .o,$(QMSRCS))
@@ -230,8 +228,8 @@ endif
 endif
 
 clean:
-	@$(RM) $(GPLOBJ)*.o
+	@rm -f $(GPLOBJ)*.o
 
 distclean: clean
-	@$(RM) $(GPLBIN)*
-	@$(RM) $(GPLSRC)terminfo
+	@rm -f $(GPLBIN)*
+	@rm -f $(GPLSRC)terminfo

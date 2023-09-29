@@ -11,7 +11,7 @@ QMUSERS := $(shell cat /etc/group | grep qmusers)
 
 MAIN     := $(shell pwd)/
 GPLSRC   := $(MAIN)gplsrc/
-GPLDOTSRC := $(MAIN)gpl.src
+GPLDOTSRC := $(MAIN)utils/gpl.src
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
 DEPDIR := $(MAIN)deps/

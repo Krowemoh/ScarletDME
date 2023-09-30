@@ -1,9 +1,12 @@
-bin/*
-deps/*
-gplobj/*
-stacks/*
-qmsys/terminfo/*/*
-pcode_files/*
+bin
+deps
+gplobj
+stacks
+qmsys/terminfo
+pcode_files
+
+zig-out
+zig-cache
 
 # Workspace files to exclude. IDE's, etc.
 .idea/**

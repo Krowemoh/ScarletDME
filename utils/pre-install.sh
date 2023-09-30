@@ -29,7 +29,7 @@ else
     if command -v useradd > /dev/null 2>&1; then
         useradd --system qmsys -G qmusers
     elif command -v adduser > /dev/null 2>&1; then
-        adduser --system qmsys --gid qmusers
+        adduser --system qmsys -G qmusers
     else
         echo "Failed to create qmsys user."
     fi
@@ -39,37 +39,41 @@ fi
 
 SYSTEMDPATH=/usr/lib/systemd/system
 
-if [ -f "$SYSTEMDPATH/scarletdme.service" ]; then
-    echo "ScarletDME systemd service is already installed."
-else
-    echo "Installing scarletdme.service for systemd."
+if [ -f  "$SYSTEMDPATH" ]; then
+    if [ -f "$SYSTEMDPATH/scarletdme.service" ]; then
+        echo "ScarletDME systemd service is already installed."
+    else
+        echo "Installing scarletdme.service for systemd."
 
-    cp utils/scarletdme* $SYSTEMDPATH
+        cp utils/scarletdme* $SYSTEMDPATH
 
-    chown root:root $SYSTEMDPATH/scarletdme.service
-    chown root:root $SYSTEMDPATH/scarletdmeclient.socket
-    chown root:root $SYSTEMDPATH/scarletdmeclient@.service
-    chown root:root $SYSTEMDPATH/scarletdmeserver.socket
-    chown root:root $SYSTEMDPATH/scarletdmeserver@.service
+        chown root:root $SYSTEMDPATH/scarletdme.service
+        chown root:root $SYSTEMDPATH/scarletdmeclient.socket
+        chown root:root $SYSTEMDPATH/scarletdmeclient@.service
+        chown root:root $SYSTEMDPATH/scarletdmeserver.socket
+        chown root:root $SYSTEMDPATH/scarletdmeserver@.service
 
-    chmod 644 $SYSTEMDPATH/scarletdme.service
-    chmod 644 $SYSTEMDPATH/scarletdmeclient.socket
-    chmod 644 $SYSTEMDPATH/scarletdmeclient@.service
-    chmod 644 $SYSTEMDPATH/scarletdmeserver.socket
-    chmod 644 $SYSTEMDPATH/scarletdmeserver@.service
+        chmod 644 $SYSTEMDPATH/scarletdme.service
+        chmod 644 $SYSTEMDPATH/scarletdmeclient.socket
+        chmod 644 $SYSTEMDPATH/scarletdmeclient@.service
+        chmod 644 $SYSTEMDPATH/scarletdmeserver.socket
+        chmod 644 $SYSTEMDPATH/scarletdmeserver@.service
+    fi
 fi
 
 # Create xinetd service
 
-if [ -f "/etc/xinetd.d/qmclient" ]; then
-    echo "qmclient is already in /etc/xinetd.d/"
-else
-    cp utils/qmclient /etc/xinetd.d
-    cp utils/qmserver /etc/xinetd.d
-fi
+if [ -f  "/etc/xinetd.d" ]; then
+    if [ -f "/etc/xinetd.d/qmclient" ]; then
+        echo "qmclient is already in /etc/xinetd.d/"
+    else
+        cp utils/qmclient /etc/xinetd.d
+        cp utils/qmserver /etc/xinetd.d
+    fi
 
-if cat /etc/services | grep -q qmclient; then
-    echo "qmclient is already in services"
-else
-    cat utils/services >> /etc/services
+    if cat /etc/services | grep -q qmclient; then
+        echo "qmclient is already in services"
+    else
+        cat utils/services >> /etc/services
+    fi
 fi

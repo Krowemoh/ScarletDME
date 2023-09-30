@@ -3,13 +3,6 @@
 COMP     := gcc
 OSNAME   := $(shell uname -s)
 
-GROUPADD := $(shell command -v addgroup 2> /dev/null || command -v groupadd 2> /dev/null)
-USERADD := $(shell command -v adduser 2> /dev/null || command -v useradd 2> /dev/null)
-USERMOD := $(shell command -v usermod 2> /dev/null)
-
-QMSYS   := $(shell cat /etc/passwd | grep qmsys)
-QMUSERS := $(shell cat /etc/group | grep qmusers)
-
 MAIN     := $(shell pwd)/
 GPLSRC   := $(MAIN)gplsrc/
 GPLDOTSRC := $(MAIN)utils/gpl.src
@@ -17,12 +10,6 @@ GPLDOTSRC := $(MAIN)utils/gpl.src
 GPLOBJ   := $(MAIN)gplobj/
 GPLBIN   := $(MAIN)bin/
 DEPDIR := $(MAIN)deps/
-
-ifneq ($(wildcard /usr/lib/systemd/system/.),)
-	SYSTEMDPATH := /usr/lib/systemd/system
-else
-	SYSTEMDPATH := /lib/systemd/system
-endif
 
 ifeq (Darwin,$(OSNAME))
 	L_FLAGS  := -lm -ldl -lcrypto
@@ -88,20 +75,6 @@ gplobj/%.o: gplsrc/%.c
 -include $(DEPDIR)/*.d
 
 install:  
-ifeq ($(QMUSERS),)
-	@echo Creating qm system user and group
-	@$(GROUPADD) --system qmusers
-ifeq ($(USERMOD),)
-	@adduser root qmusers
-else
-	@usermod -a -G qmusers root
-endif
-endif
-
-ifeq ($(QMSYS),)
-	@$(USERADD) --system qmsys -G qmusers
-endif
-
 	@echo Installing to $(INSTROOT)
 	@rm -Rf $(INSTROOT)
 	cp -R qmsys $(INSTROOT)
@@ -109,7 +82,7 @@ endif
 	chmod -R 664 $(INSTROOT)
 	find $(INSTROOT) -type d -print0 | xargs -0 chmod 775
 
-	@ mkdir $(INSTROOT)/bin
+	@mkdir $(INSTROOT)/bin
 	@cp bin/* $(INSTROOT)/bin
 	@cp utils/pcode $(INSTROOT)/bin/pcode
 	chown qmsys:qmusers $(INSTROOT)/bin $(INSTROOT)/bin/*
@@ -120,32 +93,6 @@ endif
 	@chmod 644 /etc/scarlet.conf
 
 	@test -f /usr/bin/qm || ln -s /usr/qmsys/bin/qm /usr/bin/qm
-
-ifneq ($(wildcard $(SYSTEMDPATH)/.),)
-	@echo Installing scarletdme.service for systemd.
-	@cp utils/scarletdme* $(SYSTEMDPATH)
-	@chown root:root $(SYSTEMDPATH)/scarletdme.service
-	@chown root:root $(SYSTEMDPATH)/scarletdmeclient.socket
-	@chown root:root $(SYSTEMDPATH)/scarletdmeclient@.service
-	@chown root:root $(SYSTEMDPATH)/scarletdmeserver.socket
-	@chown root:root $(SYSTEMDPATH)/scarletdmeserver@.service
-	@chmod 644 $(SYSTEMDPATH)/scarletdme.service
-	@chmod 644 $(SYSTEMDPATH)/scarletdmeclient.socket
-	@chmod 644 $(SYSTEMDPATH)/scarletdmeclient@.service
-	@chmod 644 $(SYSTEMDPATH)/scarletdmeserver.socket
-	@chmod 644 $(SYSTEMDPATH)/scarletdmeserver@.service
-endif
-
-ifneq ($(wildcard /etc/xinetd.d/.),)
-	@echo Installing xinetd files
-	@cp utils/qmclient /etc/xinetd.d
-	@cp utils/qmserver /etc/xinetd.d
-ifneq ($(wildcard /etc/services),)
-ifeq ($(shell cat /etc/services | grep qmclient),)
-	@cat utils/services >> /etc/services
-endif
-endif
-endif
 
 clean:
 	@rm -Rf $(GPLOBJ)

@@ -44,7 +44,7 @@ if [ -f "$SYSTEMDPATH/scarletdme.service" ]; then
 else
     echo "Installing scarletdme.service for systemd."
 
-    cp scarletdme* $SYSTEMDPATH
+    cp utils/scarletdme* $SYSTEMDPATH
 
     chown root:root $SYSTEMDPATH/scarletdme.service
     chown root:root $SYSTEMDPATH/scarletdmeclient.socket
@@ -64,12 +64,12 @@ fi
 if [ -f "/etc/xinetd.d/qmclient" ]; then
     echo "qmclient is already in /etc/xinetd.d/"
 else
-    cp qmclient /etc/xinetd.d
-    cp qmserver /etc/xinetd.d
+    cp utils/qmclient /etc/xinetd.d
+    cp utils/qmserver /etc/xinetd.d
 fi
 
 if cat /etc/services | grep -q qmclient; then
     echo "qmclient is already in services"
 else
-    cat services >> /etc/services
+    cat utils/services >> /etc/services
 fi

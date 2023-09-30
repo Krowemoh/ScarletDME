@@ -1,5 +1,7 @@
 # ScarletDME
 
+ScarletDME is a multivalue database that is an open source version of OpenQM 2.6.
+
 This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME).
 
 ## Installation
@@ -38,6 +40,15 @@ I have tested this version on the following systems:
 - Debian 12
 - Tiny Core Linux
 - Ubuntu 20.04
+
+## Links
+
+The manual for OpenQM is available on the wiki.
+
+[Wiki](https://scarlet.deltasoft.com/index.php/Documentation)
+
+[Discord](https://discord.gg/H7MPapC2hK)
+
 
 ## Fork Specific Changelog
 

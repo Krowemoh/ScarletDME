@@ -75,6 +75,8 @@ gplobj/%.o: gplsrc/%.c
 -include $(DEPDIR)/*.d
 
 install:  
+	bash utils/pre-install.sh
+
 	@echo Installing to $(INSTROOT)
 	@rm -Rf $(INSTROOT)
 	cp -R qmsys $(INSTROOT)

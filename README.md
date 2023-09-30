@@ -1,6 +1,6 @@
 # ScarletDME
 
-This is a fork of [Gene's ScarletDME repo](https://github.com/geneb/ScarletDME).
+This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME).
 
 ## Installation
 

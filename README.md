@@ -41,7 +41,7 @@ I have tested this version on the following systems:
 
 ## Fork Specific Changelog
 
-This is a list of what I've done since forking.
+This is a list of what I've done since forking:
 
 ```
 31 JUL 2023 - Hardcoded the terminal type.  

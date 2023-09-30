@@ -4,7 +4,7 @@ This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME)
 
 ## Installation
 
-Installation should be straightforward. There is a 32 bit target as well but the default is 64bit.
+Installation should be straightforward. The default target is 64bit, use `make qm32` to build the 32bit version.
 
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git

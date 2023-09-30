@@ -1,6 +1,6 @@
 # ScarletDME
 
-This is a heavily reorganized fork of [Gene's ScarletDME repo](https://github.com/geneb/ScarletDME).
+This is a fork of [Gene's ScarletDME repo](https://github.com/geneb/ScarletDME).
 
 ## Installation
 
@@ -22,7 +22,7 @@ sudo systemctl enable scarletdme
 Start ScarletDME:
 
 ```
-sudo systemctl start scarletdme
+qm -start
 cd /usr/qmsys
 qm
 ```
@@ -33,13 +33,11 @@ You should now be at TCL.
 
 I have tested this version on the following systems:
 
-- CentOS 7
-- Ubuntu 20.04
-
-These platforms require some work as the Makefile doesn't support them.
-
 - Alpine Linux
+- CentOS 7
+- Debian 12
 - Tiny Core Linux
+- Ubuntu 20.04
 
 ## Fork Specific Changelog
 
@@ -50,5 +48,5 @@ This is a list of what I've done since forking.
 05 AUG 2023 - Added BigNumber support.  
 21 AUG 2023 - Updated the Makefile to be more similar to the 64bit version.  
 27 SEP 2023 - Merge with upstream/dev to get 64 bit changes.
-29 SEP 2023 - Simplify the Makefile and reorganize project
+29 SEP 2023 - Simplify the Makefile and reorganize the project.
 ```

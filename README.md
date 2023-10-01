@@ -60,4 +60,5 @@ This is a list of what I've done since forking:
 21 AUG 2023 - Updated the Makefile to be more similar to the 64bit version.  
 27 SEP 2023 - Merge with upstream/dev to get 64 bit changes.
 29 SEP 2023 - Simplify the Makefile and reorganize the project.
+30 SEP 2023 - Added interop with Zig.
 ```

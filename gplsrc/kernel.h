@@ -55,6 +55,9 @@
  * START-CODE
  */
 
+#ifndef __KERNEL_H
+#define __KERNEL_H
+
 Public int16_t recursion_depth; /* Recursion depth */
 Public bool break_pending;      /* Break seen with breaks inhibited */
 
@@ -216,5 +219,7 @@ Public u_char* op_pc;  /* Address of current opcode */
 
 /* FILE_VAR allocation */
 Public int32_t next_fvar_index init(0);
+
+#endif
 
 /* END-CODE */

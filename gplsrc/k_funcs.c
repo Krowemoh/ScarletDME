@@ -1145,7 +1145,7 @@ void k_num_to_str(DESCRIPTOR* p) {
 /* ======================================================================
    Create string from C string                                            */
 
-void k_put_c_string(char* s, DESCRIPTOR* descr) {
+void k_put_c_string(const char* s, DESCRIPTOR* descr) {
   k_put_string(s, (s) ? strlen(s) : 0, descr);
 }
 

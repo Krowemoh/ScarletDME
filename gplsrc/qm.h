@@ -268,7 +268,7 @@ void k_deref_image(SCREEN_IMAGE * image);
 void k_deref_string(STRING_CHUNK * str);
 int k_get_c_string(DESCRIPTOR * descr, char * s, int max_bytes);
 void k_incr_refct(DESCRIPTOR * p);
-void k_put_c_string(char * s, DESCRIPTOR * descr);
+void k_put_c_string(const char * s, DESCRIPTOR * descr);
 void k_put_string(char * s, int len, DESCRIPTOR * descr);
 void k_num_to_str(DESCRIPTOR * p);
 bool k_str_to_num(DESCRIPTOR * p);

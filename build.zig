@@ -1,7 +1,11 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
-    var cflags = [_][]const u8{
+
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = std.builtin.OptimizeMode.ReleaseFast });
+
+    const cflags = [_][]const u8{
         "-Wall",
         "-Wformat=2",
         "-Wno-format-nonliteral",
@@ -12,7 +16,6 @@ pub fn build(b: *std.build.Builder) void {
         "-fPIC",
     };
 
-    const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = std.builtin.OptimizeMode.ReleaseFast });
 
     const qmtic = b.addExecutable(.{ .name = "qmtic", .optimize = optimize,  });
     qmtic.linkLibC();
@@ -67,6 +70,17 @@ pub fn build(b: *std.build.Builder) void {
     }, &cflags);
 
     b.installArtifact(qmlnxd);
+
+    const zmath = b.addStaticLibrary(.{
+        .name = "op_zmath", 
+        .root_source_file = .{ .path = "src/op_zmath.zig" } ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    zmath.linkLibC();
+    zmath.addIncludePath(.{ .path = "gplsrc" });
+    zmath.addIncludePath(.{ .path = "src" });
 
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, });
 
@@ -160,6 +174,8 @@ pub fn build(b: *std.build.Builder) void {
         "gplsrc/to_file.c",
         "gplsrc/txn.c",
     }, &cflags);
+
+    qm.linkLibrary(zmath);
 
     b.installArtifact(qm);
 }

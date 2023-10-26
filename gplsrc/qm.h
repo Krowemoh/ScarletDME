@@ -281,7 +281,8 @@ void k_unass_null(DESCRIPTOR * original, DESCRIPTOR * dereferenced);
 u_int32_t GetUnsignedInt(DESCRIPTOR * descr);
 
 #define k_pop(n) e_stack -= n
-#define k_dismiss() k_release(--e_stack)
+//#define k_dismiss() k_release(--e_stack)
+void k_dismiss();
 
 
 /* MESSAGES.C */

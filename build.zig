@@ -14,6 +14,7 @@ pub fn build(b: *std.build.Builder) void {
         "-DGPL",
         "-fPIE",
         "-fPIC",
+        "-fno-sanitize=undefined",
     };
 
 

@@ -1194,6 +1194,14 @@ void k_put_string(char* s, /* Data to copy. NULL returns blank string */
 }
 
 /* ======================================================================
+   k_dismiss()  -  Zig Specific Change         */
+
+void k_dismiss() {
+    e_stack = e_stack - 1;
+    k_release(e_stack);
+}
+
+/* ======================================================================
    k_release()  -  Release descriptor, converting to UNASSIGNED         */
 
 void k_release(DESCRIPTOR* p) {

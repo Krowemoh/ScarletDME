@@ -89,7 +89,6 @@ pub fn build(b: *std.build.Builder) void {
     qm.linkSystemLibrary("m");
     qm.linkSystemLibrary("crypt");
     qm.linkSystemLibrary("dl");
-    qm.linkSystemLibrary("crypto");
 
     qm.addCSourceFiles(&.{
         "gplsrc/qm.c",
@@ -127,7 +126,6 @@ pub fn build(b: *std.build.Builder) void {
         "gplsrc/object.c",
         "gplsrc/objprog.c",
         "gplsrc/op_arith.c",
-        "gplsrc/op_smath.c",
         "gplsrc/op_array.c",
         "gplsrc/op_btree.c",
         "gplsrc/op_ccall.c",

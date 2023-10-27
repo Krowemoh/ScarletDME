@@ -61,4 +61,5 @@ This is a list of what I've done since forking:
 27 SEP 2023 - Merge with upstream/dev to get 64 bit changes.
 29 SEP 2023 - Simplify the Makefile and reorganize the project.
 30 SEP 2023 - Added interop with Zig.
+26 OCT 2023 - BigNumber support is now in Zig.
 ```

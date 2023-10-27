@@ -1,5 +1,7 @@
 #!/usr/bin/sh
 
+INSTROOT=/usr/qmsys
+
 # Create QM Group
 
 if getent group qmusers > /dev/null 2>&1; then
@@ -77,3 +79,30 @@ if [ -f  "/etc/xinetd.d" ]; then
         cat utils/services >> /etc/services
     fi
 fi
+
+echo "Building terminfo"
+test -d qmsys/terminfo || mkdir qmsys/terminfo
+cd qmsys && ../zig-out/bin/qmtic -pterminfo ../utils/terminfo.src
+
+cd ..
+
+echo Installing to $INSTROOT
+rm -Rf "$INSTROOT"
+cp -R qmsys "$INSTROOT"
+chown -R qmsys:qmusers "$INSTROOT"
+chmod -R 664 "$INSTROOT"
+find "$INSTROOT" -type d -print0 | xargs -0 chmod 775
+
+mkdir "$INSTROOT/bin"
+cp zig-out/bin/* "$INSTROOT/bin"
+cp utils/pcode "$INSTROOT/bin/pcode"
+chown qmsys:qmusers "$INSTROOT/bin" $INSTROOT/bin/*
+chmod 775 "$INSTROOT/bin" $INSTROOT/bin/*
+
+echo Writing scarlet.conf file
+cp utils/scarlet.conf /etc/scarlet.conf
+chmod 644 /etc/scarlet.conf
+
+test -f /usr/bin/qm || ln -s /usr/qmsys/bin/qm /usr/bin/qm
+
+

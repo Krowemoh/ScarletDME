@@ -6,13 +6,13 @@ This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME)
 
 ## Installation
 
-Installation should be straightforward. The default target is 64bit, use `make qm32` to build the 32bit version.
+ScarletDME is built with zig and the install script will create the qmsys user and set up the master account.
 
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git
 cd ScarletDME
-make
-sudo make install
+zig build
+sudo utils/install.sh
 ```
 
 Enable ScarletDME on boot:
@@ -30,6 +30,16 @@ qm
 ```
 
 You should now be at TCL.
+
+## Zig Installation
+
+A very quick guide to getting zig installed. This project uses Zig v11.
+
+```
+wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
+tar xvf zig-linux-x86_64-0.11.0.tar.xz
+ln -s /home/username/bp/zig-linux-x86_64-0.11.0/zig /home/username/bin/zig
+```
 
 ## Platforms
 

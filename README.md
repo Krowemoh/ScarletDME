@@ -31,16 +31,6 @@ qm
 
 You should now be at TCL.
 
-## Zig Installation
-
-A very quick guide to getting zig installed. This project uses Zig v11.
-
-```
-wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
-tar xvf zig-linux-x86_64-0.11.0.tar.xz
-ln -s /home/username/bp/zig-linux-x86_64-0.11.0/zig /home/username/bin/zig
-```
-
 ## Platforms
 
 I have tested this version on the following systems:
@@ -73,3 +63,15 @@ This is a list of what I've done since forking:
 30 SEP 2023 - Added interop with Zig.
 26 OCT 2023 - BigNumber support is now in Zig.
 ```
+
+## Zig Installation
+
+A very quick guide to getting zig installed. This project uses Zig v11.
+
+```
+wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
+tar xvf zig-linux-x86_64-0.11.0.tar.xz
+ln -s /home/username/bp/zig-linux-x86_64-0.11.0/zig /home/username/bin/zig
+```
+
+

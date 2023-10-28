@@ -80,29 +80,27 @@ if [ -f  "/etc/xinetd.d" ]; then
     fi
 fi
 
-echo "Building terminfo"
-test -d qmsys/terminfo || mkdir qmsys/terminfo
-cd qmsys && ../zig-out/bin/qmtic -pterminfo ../utils/terminfo.src
+echo "Building qmsys/terminfo"
+mkdir -p qmsys/terminfo
+(cd qmsys && ../zig-out/bin/qmtic -pterminfo ../utils/terminfo.src > /dev/null)
 
-cd ..
-
-echo Installing to $INSTROOT
+echo "Setting up $INSTROOT"
 rm -Rf "$INSTROOT"
 cp -R qmsys "$INSTROOT"
 chown -R qmsys:qmusers "$INSTROOT"
 chmod -R 664 "$INSTROOT"
 find "$INSTROOT" -type d -print0 | xargs -0 chmod 775
 
+echo "Installing binaries to $INSTROOT"
 mkdir "$INSTROOT/bin"
 cp zig-out/bin/* "$INSTROOT/bin"
 cp utils/pcode "$INSTROOT/bin/pcode"
 chown qmsys:qmusers "$INSTROOT/bin" $INSTROOT/bin/*
 chmod 775 "$INSTROOT/bin" $INSTROOT/bin/*
 
-echo Writing scarlet.conf file
+echo "Creating /etc/scarlet.conf"
 cp utils/scarlet.conf /etc/scarlet.conf
 chmod 644 /etc/scarlet.conf
 
-test -f /usr/bin/qm || ln -s /usr/qmsys/bin/qm /usr/bin/qm
-
-
+echo "Adding qm to /usr/bin"
+ln -sf /usr/qmsys/bin/qm /usr/bin/qm

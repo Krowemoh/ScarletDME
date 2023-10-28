@@ -71,7 +71,7 @@ A very quick guide to getting zig installed. This project uses Zig v11.
 ```
 wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
 tar xvf zig-linux-x86_64-0.11.0.tar.xz
-ln -s /path/to/zig-linux-x86_64-0.11.0/zig /path/to/bin/zig
+ln -s /root/zig-linux-x86_64-0.11.0/zig /usr/bin/zig
 ```
 
 

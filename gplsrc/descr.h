@@ -363,7 +363,8 @@ struct FILE_VAR {
       SQ_FILE* sq_file; /* SQ_FILE structure */
     } seq;
     struct {
-      u_int16_t mark_mapping : 1;
+      //u_int16_t mark_mapping : 1;
+        bool mark_mapping;
     } dir;
     struct {
       int file_no;

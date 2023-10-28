@@ -6,7 +6,7 @@ This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME)
 
 ## Installation
 
-ScarletDME is built with zig and the install script will create the qmsys user and set up the master account.
+ScarletDME is built with zig. There is a install script that is included in the utils directory that will install ScarletDME.
 
 ```
 git clone https://github.com/Krowemoh/ScarletDME.git
@@ -71,7 +71,7 @@ A very quick guide to getting zig installed. This project uses Zig v11.
 ```
 wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
 tar xvf zig-linux-x86_64-0.11.0.tar.xz
-ln -s /home/username/bp/zig-linux-x86_64-0.11.0/zig /home/username/bin/zig
+ln -s /path/to/zig-linux-x86_64-0.11.0/zig /path/to/bin/zig
 ```
 
 

@@ -1,17 +1,3 @@
-bin
-deps
-gplobj
-stacks
 qmsys/terminfo
-pcode_files
-
 zig-out
 zig-cache
-
-# Workspace files to exclude. IDE's, etc.
-.idea/**
-.vscode/**
-PVS_Studio.fullhtml/**
-PVS_Studio.tasks
-gcc.log
-strace_out

@@ -80,9 +80,13 @@ if [ -f  "/etc/xinetd.d" ]; then
     fi
 fi
 
+# Create terminfo
+
 echo "Building qmsys/terminfo"
 mkdir -p qmsys/terminfo
 (cd qmsys && ../zig-out/bin/qmtic -pterminfo ../utils/terminfo.src > /dev/null)
+
+# Set up master QM account
 
 echo "Setting up $INSTROOT"
 rm -Rf "$INSTROOT"
@@ -91,6 +95,8 @@ chown -R qmsys:qmusers "$INSTROOT"
 chmod -R 664 "$INSTROOT"
 find "$INSTROOT" -type d -print0 | xargs -0 chmod 775
 
+# Copy binaries to the qm account
+
 echo "Installing binaries to $INSTROOT"
 mkdir "$INSTROOT/bin"
 cp zig-out/bin/* "$INSTROOT/bin"
@@ -98,9 +104,13 @@ cp utils/pcode "$INSTROOT/bin/pcode"
 chown qmsys:qmusers "$INSTROOT/bin" $INSTROOT/bin/*
 chmod 775 "$INSTROOT/bin" $INSTROOT/bin/*
 
+# Copy QM configuration to /etc
+
 echo "Creating /etc/scarlet.conf"
 cp utils/scarlet.conf /etc/scarlet.conf
 chmod 644 /etc/scarlet.conf
+
+# Make qm available to all users
 
 echo "Adding qm to /usr/bin"
 ln -sf /usr/qmsys/bin/qm /usr/bin/qm

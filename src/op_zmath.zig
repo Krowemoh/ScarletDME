@@ -8,7 +8,11 @@ const qm = @cImport({
 
 const Arguments = struct { a: Managed, b: Managed };
 
-fn get_arguments(allocator: std.mem.Allocator) !Arguments {
+//var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+//var allocator = gpa.allocator(); 
+var allocator = std.heap.c_allocator;
+
+fn get_arguments() !Arguments {
     var ok: bool = undefined;
 
     var s1: [1025]u8 = std.mem.zeroes([1025:0]u8);
@@ -39,7 +43,7 @@ fn get_arguments(allocator: std.mem.Allocator) !Arguments {
     return .{ .a = a, .b = b }; 
 }
 
-fn bigInt_to_CString(allocator: std.mem.Allocator, a: Managed) ![]u8 {
+fn bigInt_to_CString(a: Managed) ![]u8 {
     const ans = try a.toString(allocator,10,.lower);
     defer allocator.free(ans);
 
@@ -52,10 +56,8 @@ fn bigInt_to_CString(allocator: std.mem.Allocator, a: Managed) ![]u8 {
 }
 
 export fn op_sadd() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator(); 
 
-    var args = get_arguments(allocator) catch | err | {
+    var args = get_arguments() catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -69,7 +71,7 @@ export fn op_sadd() void {
         return;
     };
 
-    const c_str = bigInt_to_CString(allocator, args.a) catch | err | {
+    const c_str = bigInt_to_CString(args.a) catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -86,10 +88,8 @@ export fn op_sadd() void {
 }
 
 export fn op_ssub() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator(); 
 
-    var args = get_arguments(allocator) catch | err | {
+    var args = get_arguments() catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -103,7 +103,7 @@ export fn op_ssub() void {
         return;
     };
 
-    const c_str = bigInt_to_CString(allocator, args.a) catch | err | {
+    const c_str = bigInt_to_CString(args.a) catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -120,10 +120,8 @@ export fn op_ssub() void {
 }
 
 export fn op_smul() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator(); 
 
-    var args = get_arguments(allocator) catch | err | {
+    var args = get_arguments() catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -137,7 +135,7 @@ export fn op_smul() void {
         return;
     };
 
-    const c_str = bigInt_to_CString(allocator, args.a) catch | err | {
+    const c_str = bigInt_to_CString(args.a) catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -154,10 +152,8 @@ export fn op_smul() void {
 }
 
 export fn op_sdiv() void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator(); 
 
-    var args = get_arguments(allocator) catch | err | {
+    var args = get_arguments() catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;
@@ -185,7 +181,7 @@ export fn op_sdiv() void {
         return;
     };
 
-    const c_str = bigInt_to_CString(allocator, q) catch | err | {
+    const c_str = bigInt_to_CString(q) catch | err | {
         std.debug.print("Zig Error: {any}\n", .{ err });
         qm.process.status = 2;
         return;

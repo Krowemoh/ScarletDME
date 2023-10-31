@@ -8,8 +8,6 @@ const qm = @cImport({
 
 const Arguments = struct { a: Managed, b: Managed };
 
-//var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-//var allocator = gpa.allocator(); 
 var allocator = std.heap.c_allocator;
 
 fn get_arguments() !Arguments {

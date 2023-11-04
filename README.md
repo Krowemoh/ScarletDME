@@ -63,6 +63,7 @@ This is a list of what I've done since forking:
 30 SEP 2023 - Added interop with Zig.
 26 OCT 2023 - BigNumber support is now in Zig.
 27 OCT 2023 - Changed mark_mapping to be a byte instead of a bitfield.
+03 NOV 2023 - Rewrote op_time, the TIME() in Zig
 ```
 
 ## Zig Installation

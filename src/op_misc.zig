@@ -26,7 +26,7 @@ export fn op_timems() void {
         qm.process.status = 2;
         return;
     };
-    var milliseconds = @as(f32,@floatFromInt(time.tv_nsec))/1_000_000_000;
+    var milliseconds = @as(f64,@floatFromInt(time.tv_nsec))/1_000_000_000;
 
     localSeconds = localSeconds + milliseconds;
 

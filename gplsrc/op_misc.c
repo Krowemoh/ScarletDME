@@ -1420,14 +1420,6 @@ void op_status() {
 }
 
 /* ======================================================================
-   op_time()  -  Return time as integer                                   */
-
-void op_time() {
-  InitDescr(e_stack, INTEGER);
-  (e_stack++)->data.value = local_time() % 86400L;
-}
-
-/* ======================================================================
    op_timedate()  -  Return time and date as string                       */
 
 void op_timedate() {

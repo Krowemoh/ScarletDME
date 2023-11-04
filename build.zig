@@ -72,16 +72,27 @@ pub fn build(b: *std.build.Builder) void {
 
     b.installArtifact(qmlnxd);
 
-    const zmath = b.addStaticLibrary(.{
-        .name = "op_zmath", 
-        .root_source_file = .{ .path = "src/op_zmath.zig" } ,
+    const smath = b.addStaticLibrary(.{
+        .name = "op_smath", 
+        .root_source_file = .{ .path = "src/op_smath.zig" } ,
         .optimize = optimize,
         .target = target,
     });
 
-    zmath.linkLibC();
-    zmath.addIncludePath(.{ .path = "gplsrc" });
-    zmath.addIncludePath(.{ .path = "src" });
+    smath.linkLibC();
+    smath.addIncludePath(.{ .path = "gplsrc" });
+    smath.addIncludePath(.{ .path = "src" });
+
+    const misc = b.addStaticLibrary(.{
+        .name = "op_misc", 
+        .root_source_file = .{ .path = "src/op_misc.zig" } ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    misc.linkLibC();
+    misc.addIncludePath(.{ .path = "gplsrc" });
+    misc.addIncludePath(.{ .path = "src" });
 
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, });
 
@@ -174,7 +185,8 @@ pub fn build(b: *std.build.Builder) void {
         "gplsrc/txn.c",
     }, &cflags);
 
-    qm.linkLibrary(zmath);
+    qm.linkLibrary(smath);
+    qm.linkLibrary(misc);
 
     b.installArtifact(qm);
 }

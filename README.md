@@ -4,6 +4,8 @@ ScarletDME is a multivalue database that is an open source version of OpenQM 2.6
 
 This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME).
 
+The goal of this fork is to do develop future features in Zig rather than C.
+
 ## Installation
 
 ScarletDME is built with zig. There is a install script that is included in the utils directory that will install ScarletDME.

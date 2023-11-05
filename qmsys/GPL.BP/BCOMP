@@ -321,6 +321,7 @@ $define M.HEADING.NO.EJECT     18
 $define M.NO.ECHO.DATA         19
 $define M.NO.CASE.INVERT       20
 $define M.OPTIONAL.THEN.ELSE   21; *rdm
+$define M.TIME.MS 22
 ** End New Modes
 
 * Corresponding names, value delimited, first name is bit 0 of mode flags
@@ -347,6 +348,7 @@ mode.names := @VM:"HEADING.NO.EJECT"
 mode.names := @VM:"NO.ECHO.DATA"
 mode.names := @VM:"NO.CASE.INVERT"
 mode.names := @VM:"OPTIONAL.THEN.ELSE"
+mode.names := @VM:"TIME.MS"
 *****************************************************************************
 
    * If this is a C-type, the {name} construct refers to the dictionary
@@ -3938,6 +3940,16 @@ end
 
             if bittest(mode, M.CASE.SENSITIVE) then x.symbol.name = upcase(symbol.name)
             else x.symbol.name = symbol.name
+
+            if bittest(mode, M.TIME.MS) then 
+                locate 'TIME' in intrinsics<1> by 'AL' setting i then
+                    intrinsic.opcodes<i> = OP.TIMEMS
+                end
+            end else
+                locate 'TIME' in intrinsics<1> by 'AL' setting i then
+                    intrinsic.opcodes<i> = OP.TIME
+                end
+            end
 
             locate x.symbol.name in intrinsics<1> by 'AL' setting i else
                * Try restricted functions if in internal mode

@@ -493,7 +493,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    statements := @fm:"CALL":@fm:"CASE":@fm:"CHAIN"
    statements := @fm:"CLEAR":@fm:"CLEARCOMMON"
    statements := @fm:"CLEARDATA":@fm:"CLEARFILE":@fm:"CLEARINPUT"
-   statements := @fm:"CLEARSELECT":@fm:"CLOSE":@fm:"CLOSESEQ":@fm:"CLOSE.SOCKET"
+   statements := @fm:"CLEARSELECT":@fm:"CLOSE":@fm:"CLOSESEQ":@fm:"CLOSE.SECURE.SOCKET":@fm:"CLOSE.SOCKET"
    statements := @fm:"COMMIT":@fm:"CONTINUE":@fm:"CONVERT":@fm:"CREATE"
    statements := @fm:"CREATE.FILE":@fm:"CRT"
    statements := @fm:"DATA":@fm:"DEBUG":@fm:"DEL":@fm:"DELETE"
@@ -605,6 +605,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
 
    intrinsics = "ABS"                 ; intrinsic.opcodes = OP.ABS
    intrinsics<-1> = "ABSS"            ; intrinsic.opcodes<-1> = OP.ABSS
+   intrinsics<-1> = "ACCEPT.SECURE.SOCKET.CONNECTION" ; intrinsic.opcodes<-1> = OP.ACCPTSECSKT
    intrinsics<-1> = "ACCEPT.SOCKET.CONNECTION" ; intrinsic.opcodes<-1> = OP.ACCPTSKT
    intrinsics<-1> = "ACOS"            ; intrinsic.opcodes<-1> = OP.ACOS
    intrinsics<-1> = "ALPHA"           ; intrinsic.opcodes<-1> = OP.ALPHA
@@ -639,6 +640,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "COS"             ; intrinsic.opcodes<-1> = OP.COS
    intrinsics<-1> = "COUNT"           ; intrinsic.opcodes<-1> = OP.COUNT
    intrinsics<-1> = "COUNTS"          ; intrinsic.opcodes<-1> = OP.COUNTS
+   intrinsics<-1> = "CREATE.SECURE.SERVER.SOCKET" ; intrinsic.opcodes<-1> = OP.SRVRSECSKT
    intrinsics<-1> = "CREATE.SERVER.SOCKET" ; intrinsic.opcodes<-1> = OP.SRVRSKT
    intrinsics<-1> = "CROP"            ; intrinsic.opcodes<-1> = OP.CROP
    intrinsics<-1> = "CSVDQ"           ; intrinsic.opcodes<-1> = OP.CSVDQ
@@ -726,6 +728,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "QUOTE"           ; intrinsic.opcodes<-1> = OP.QUOTE
    intrinsics<-1> = "RAISE"           ; intrinsic.opcodes<-1> = OP.RAISE
    intrinsics<-1> = "RDIV"            ; intrinsic.opcodes<-1> = OP.RDIV
+   intrinsics<-1> = "READ.SECURE.SOCKET"     ; intrinsic.opcodes<-1> = OP.READSECSKT
    intrinsics<-1> = "READ.SOCKET"     ; intrinsic.opcodes<-1> = OP.READSKT
    intrinsics<-1> = "RECORDLOCKED"    ; intrinsic.opcodes<-1> = OP.RECLCKD
    intrinsics<-1> = "REM"             ; intrinsic.opcodes<-1> = OP.REM
@@ -784,6 +787,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "UPCASE"          ; intrinsic.opcodes<-1> = OP.UPCASE
    intrinsics<-1> = "VARTYPE"         ; intrinsic.opcodes<-1> = OP.VARTYPE
    intrinsics<-1> = "VSLICE"          ; intrinsic.opcodes<-1> = OP.VSLICE
+   intrinsics<-1> = "WRITE.SECURE.SOCKET"    ; intrinsic.opcodes<-1> = OP.WRITESECSKT
    intrinsics<-1> = "WRITE.SOCKET"    ; intrinsic.opcodes<-1> = OP.WRITESKT
    intrinsics<-1> = "XLATE"           ; intrinsic.opcodes<-1> = OP.TRANS
    intrinsics<-1> = "XTD"             ; intrinsic.opcodes<-1> = OP.XTD
@@ -2199,6 +2203,7 @@ is.statement:
                  st.clearselect,
                  st.close,
                  st.close,                     ;* CLOSESEQ
+                 st.close.secure.socket,              ;* CLOSE.SECURE.SOCKET
                  st.close.socket,
                  st.commit,
                  st.continue,
@@ -4004,6 +4009,7 @@ end
             intrinsic.stack = intrinsic.opcodes<i> : @fm : intrinsic.stack 
             on i goto in.one,         ;* ABS
                       in.one,         ;* ABSS
+                      in.two,         ;* ACCEPT.SECURE.SOCKET.CONNECTION
                       in.two,         ;* ACCEPT.SOCKET.CONNECTION
                       in.one,         ;* ACOS
                       in.one,         ;* ALPHA
@@ -4038,6 +4044,7 @@ end
                       in.one,         ;* COS
                       in.two,         ;* COUNT
                       in.two,         ;* COUNTS
+                      in.create.socket.server, ;* CREATE.SECURE.SERVER.SOCKET
                       in.create.socket.server, ;* CREATE.SERVER.SOCKET
                       in.one,         ;* CROP
                       in.csvdq,       ;* CSVDQ
@@ -4125,6 +4132,7 @@ end
                       in.one,         ;* QUOTE
                       in.one,         ;* RAISE
                       in.two,         ;* RDIV
+                      in.four,        ;* READ.SECURE.SOCKET
                       in.four,        ;* READ.SOCKET
                       in.fvar.two,    ;* RECORDLOCKED
                       in.two,         ;* REM
@@ -4183,6 +4191,7 @@ end
                       in.one,         ;* UPCASE
                       in.one,         ;* VARTYPE
                       in.two,         ;* VSLICE
+                      in.four,        ;* WRITE.SECURE.SOCKET
                       in.four,        ;* WRITE.SOCKET
                       in.trans,       ;* XLATE
                       in.one          ;* XTD
@@ -6412,6 +6421,18 @@ st.close.socket:
 
    opcode.byte = OP.CLOSESKT ; gosub emit.simple
    return
+
+*****************************************************************************
+* ST.CLOSE.SOCKET  -  CLOSE.SECURE.SOCKET statement
+
+st.close.secure.socket:
+   if look.ahead.token # TKN.NAME and look.ahead.token # TKN.NAME.LBR then goto err.var
+   gosub get.token
+   gosub emit.var.reference             ;* Emit file variable
+
+   opcode.byte = OP.CLOSESECSKT ; gosub emit.simple
+   return
+
 
 *****************************************************************************
 * ST.COMMIT  -  COMMIT statement

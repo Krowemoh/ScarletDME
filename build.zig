@@ -94,6 +94,22 @@ pub fn build(b: *std.build.Builder) void {
     misc.addIncludePath(.{ .path = "gplsrc" });
     misc.addIncludePath(.{ .path = "src" });
 
+    const secure_socket = b.addStaticLibrary(.{
+        .name = "op_secure_socket", 
+        .root_source_file = .{ .path = "src/op_secure_socket.zig" } ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    secure_socket.linkLibC();
+    secure_socket.addIncludePath(.{ .path = "gplsrc" });
+    secure_socket.addIncludePath(.{ .path = "src" });
+    secure_socket.addIncludePath(.{ .path = "lib" });
+    secure_socket.addCSourceFiles(&.{"lib/zig_ssl_config.c"}, &[_][]const u8{"-std=c99"});
+    secure_socket.linkSystemLibrary("mbedcrypto");
+    secure_socket.linkSystemLibrary("mbedtls");
+    secure_socket.linkSystemLibrary("mbedx509");
+
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, });
 
     qm.linkLibC();
@@ -187,6 +203,7 @@ pub fn build(b: *std.build.Builder) void {
 
     qm.linkLibrary(smath);
     qm.linkLibrary(misc);
+    qm.linkLibrary(secure_socket);
 
     b.installArtifact(qm);
 }

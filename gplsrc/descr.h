@@ -481,8 +481,8 @@ struct SOCKVAR {
 #define SKT_USER_MASK 0x0001    /* Flags settable by user */
   char ip_addr[40];             /* IP address,IPv4 or IPv6 */
 
-  mbedtls_net_context fd;       /* SSL Server Socket */
-  mbedtls_ssl_context ssl;      /* SSL Client Socket */
+  mbedtls_net_context *fd;       /* SSL Server Socket */
+  mbedtls_ssl_context *ssl;      /* SSL Client Socket */
 };
 
 /* -------------------- OBJECT NAME MAP ------------------ */

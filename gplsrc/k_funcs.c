@@ -1194,6 +1194,14 @@ void k_put_string(char* s, /* Data to copy. NULL returns blank string */
 }
 
 /* ======================================================================
+   k_pop()  -  Zig Specific Change         */
+
+void k_pop(int n) {
+    e_stack = e_stack - n;
+}
+
+
+/* ======================================================================
    k_dismiss()  -  Zig Specific Change         */
 
 void k_dismiss() {

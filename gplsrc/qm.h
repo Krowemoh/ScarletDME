@@ -60,6 +60,9 @@
    #include <sys/types.h>
    #include <sys/stat.h>
 
+#include "mbedtls/net_sockets.h"
+#include "mbedtls/ssl.h"
+
 #include "qmdefs.h"
 
 

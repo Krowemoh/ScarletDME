@@ -101,7 +101,6 @@ pub fn build(b: *std.build.Builder) void {
         .target = target,
     });
 
-    secure_socket.linkLibC();
     secure_socket.addIncludePath(.{ .path = "gplsrc" });
     secure_socket.addIncludePath(.{ .path = "src" });
     secure_socket.addIncludePath(.{ .path = "lib" });
@@ -109,6 +108,7 @@ pub fn build(b: *std.build.Builder) void {
     secure_socket.linkSystemLibrary("mbedcrypto");
     secure_socket.linkSystemLibrary("mbedtls");
     secure_socket.linkSystemLibrary("mbedx509");
+    secure_socket.linkLibC();
 
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, });
 

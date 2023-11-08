@@ -2,13 +2,6 @@ const std = @import("std");
 
 const qm = @cImport({
     @cInclude("qm.h");
-    @cInclude("zig_ssl_config.h");
-    @cInclude("mbedtls/entropy.h");
-    @cInclude("mbedtls/ctr_drbg.h");
-    @cInclude("mbedtls/x509.h");
-    @cInclude("mbedtls/error.h");
-    @cInclude("mbedtls/debug.h");
-    @cInclude("mbedtls/ssl_cache.h");
 });
 
 var allocator = std.heap.c_allocator;
@@ -18,27 +11,14 @@ export fn op_secure_server_socket() void {
 
     // Initalize SSL 
     var listen_fd = allocator.create(qm.mbedtls_net_context) catch unreachable;
-
     var entropy = allocator.create(qm.mbedtls_entropy_context) catch unreachable;
-    defer allocator.destroy(entropy);
-
     var ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch unreachable;
-    defer allocator.destroy(ctr_drbg);
-
     var ssl = allocator.create(qm.mbedtls_ssl_context) catch unreachable;
-
     var conf_ctx = qm.zmbedtls_ssl_config_alloc();
     var conf: *qm.mbedtls_ssl_config = @ptrCast(conf_ctx);
-    defer qm.zmbedtls_ssl_config_free(conf);
-
     var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch unreachable;
-    defer allocator.destroy(srvcrt);
-
     var pkey = allocator.create(qm.mbedtls_pk_context) catch unreachable;
-    defer allocator.destroy(pkey);
-
     var cache = allocator.create(qm.mbedtls_ssl_cache_context) catch unreachable;
-    defer allocator.destroy(cache);
 
     qm.mbedtls_net_init(listen_fd);
 
@@ -53,7 +33,7 @@ export fn op_secure_server_socket() void {
     qm.mbedtls_ssl_cache_init(cache);
 
     // Seed
-    const pers = "SSL";
+    const pers = "ssl_server";
     ret = qm.mbedtls_ctr_drbg_seed(ctr_drbg, qm.mbedtls_entropy_func, entropy, pers, pers.len);
     if (ret != 0) {
         std.debug.print("Seed Failed: {}\n", .{ret});
@@ -113,15 +93,21 @@ export fn op_secure_server_socket() void {
     }
 
     var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch unreachable;
-    socket.ref_ct = 1;
+    socket.server = 1;
     socket.fd = listen_fd;
+    socket.entropy = entropy;
+    socket.ctr_drbg = ctr_drbg;
     socket.ssl = ssl;
+    socket.conf = conf;
+    socket.srvcrt = srvcrt;
+    socket.pkey = pkey;
+    socket.cache = cache;
 
     qm.k_dismiss();
     qm.k_pop(2);
     qm.k_dismiss();
 
-    qm.e_stack.*.type = @as(i16, qm.SOCK);
+    qm.e_stack.*.type = qm.SOCK;
     qm.e_stack.*.data.sock = socket;
     qm.e_stack = qm.e_stack + 1;
 }
@@ -135,23 +121,26 @@ export fn op_secure_accept_socket() void {
     var client_fd = allocator.create(qm.mbedtls_net_context) catch unreachable;
     qm.mbedtls_net_init(client_fd);
 
-    ret = qm.mbedtls_ssl_session_reset(descr.*.data.sock.*.ssl);
+    var sock = descr.*.data.sock.*;
+
+    ret = qm.mbedtls_ssl_session_reset(sock.ssl);
     if (ret != 0) {
         std.debug.print("Reset Failed: {}\n", .{ret});
         qm.process.status = 2;
         return;
     }
 
-    ret = qm.mbedtls_net_accept(descr.*.data.sock.*.fd, client_fd, null, 0, null);
+    ret = qm.mbedtls_net_accept(sock.fd, client_fd, null, 0, null);
     if (ret != 0) {
         std.debug.print("Accept Failed: {}\n", .{ret});
         qm.process.status = 2;
         return;
     }
 
-    qm.mbedtls_ssl_set_bio(descr.*.data.sock.*.ssl, client_fd, qm.mbedtls_net_send, qm.mbedtls_net_recv, null);
+    qm.mbedtls_ssl_set_bio(sock.ssl, client_fd, qm.mbedtls_net_send, qm.mbedtls_net_recv, null);
 
-    while (ret != 0) : (ret = qm.mbedtls_ssl_handshake(descr.*.data.sock.*.ssl)) {
+    ret = qm.mbedtls_ssl_handshake(sock.ssl);
+    while (ret != 0) : (ret = qm.mbedtls_ssl_handshake(sock.ssl)) {
         if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
             std.debug.print("SSL Handshake Failed: {}\n", .{ret});
             qm.process.status = 2;
@@ -160,14 +149,14 @@ export fn op_secure_accept_socket() void {
     }
 
     var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch unreachable;
-    socket.ref_ct = 1;
+    socket.server = 0;
     socket.fd = client_fd;
-    socket.ssl = descr.*.data.sock.*.ssl;
+    socket.ssl = sock.ssl;
 
     qm.k_pop(1);
     qm.k_dismiss();
 
-    qm.e_stack.*.type = @as(i16, qm.SOCK);
+    qm.e_stack.*.type = qm.SOCK;
     qm.e_stack.*.data.sock = socket;
     qm.e_stack = qm.e_stack + 1;
 }
@@ -176,14 +165,23 @@ export fn op_secure_read_socket() void {
     var descr = qm.e_stack - 4;
     while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
 
+    var sock = descr.*.data.sock.*;
+
     var ret: i32 = undefined;
     var buffer: [1024]u8 = std.mem.zeroes([1024:0]u8);
-    ret = qm.mbedtls_ssl_read(descr.*.data.sock.*.ssl, &buffer, 1024);
+
+    ret = qm.mbedtls_ssl_read(sock.ssl, &buffer, 1024);
+
+    const c_str = allocator.alloc(u8,1025) catch unreachable;
+    @memset(c_str,0);
+    @memcpy(c_str[0..buffer.len],buffer[0..]);
+
+    const retString: [*c]const u8 = &c_str[0];
 
     qm.k_pop(3);
     qm.k_dismiss();
 
-    qm.e_stack.*.type = @as(i16, qm.STRING);
+    qm.k_put_c_string(retString, qm.e_stack);
     qm.e_stack = qm.e_stack + 1;
 }
 
@@ -191,21 +189,34 @@ export fn op_secure_write_socket() void {
     var descr = qm.e_stack - 4;
     while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
 
+    var sock = descr.*.data.sock.*;
+
     var buffer = "Hello, World!";
+
     var ret: i32 = undefined;
-    ret = qm.mbedtls_ssl_write(descr.*.data.sock.*.ssl, buffer, buffer.len); 
-    if (ret <= 0) {
-        std.debug.print("SSL Write Failed: {}\n", .{ret});
-        qm.process.status = 2;
-        return;
+
+    ret = qm.mbedtls_ssl_write(sock.ssl, buffer, buffer.len);
+    while (ret <= 0) : (ret = qm.mbedtls_ssl_write(sock.ssl, buffer, buffer.len)) {
+        if (ret == qm.MBEDTLS_ERR_NET_CONN_RESET) {
+            std.debug.print("Connection reset: {}\n", .{ret});
+            qm.process.status = 2;
+            return;
+
+        }
+        if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
+            std.debug.print("SSL Write Failed: {}\n", .{ret});
+            qm.process.status = 2;
+            return;
+        }
     }
+
     var bytes = ret;
 
     qm.k_pop(2);
     qm.k_dismiss();
     qm.k_dismiss();
 
-    qm.e_stack.*.type = @as(i16, qm.INTEGER);
+    qm.e_stack.*.type = qm.INTEGER;
     qm.e_stack.*.data.value = bytes;
     qm.e_stack = qm.e_stack + 1;
 }
@@ -214,16 +225,29 @@ export fn op_secure_close_socket() void {
     var descr = qm.e_stack - 1;
     while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
 
-    qm.mbedtls_net_free(descr.*.data.sock.*.fd);
+    var sock: qm.SOCKVAR = descr.*.data.sock.*;
 
-    var ret = qm.mbedtls_ssl_close_notify(descr.*.data.sock.*.ssl);
-    if (ret < 0) {
-        std.debug.print("SSL Close Failed: {}\n", .{ret});
-        qm.process.status = 2;
-        return;
+    if (sock.server == 0) {
+        var ret = qm.mbedtls_ssl_close_notify(sock.ssl);
+        while (ret < 0) : (ret = qm.mbedtls_ssl_close_notify(sock.ssl)) {
+            if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
+                std.debug.print("SSL Close Failed: {}\n", .{ret});
+                qm.process.status = 2;
+                return;
+            }
+        }
+        qm.mbedtls_net_free(sock.fd);
+
+    } else if (sock.server == 1) {
+        qm.mbedtls_net_free(sock.fd);
+        qm.mbedtls_entropy_free(sock.entropy);
+        qm.mbedtls_ctr_drbg_free(sock.ctr_drbg);
+        qm.zmbedtls_ssl_config_free(sock.conf);
+        qm.mbedtls_x509_crt_free(sock.srvcrt);
+        qm.mbedtls_pk_free(sock.pkey);
+        qm.mbedtls_ssl_free(sock.ssl);
+        qm.mbedtls_ssl_cache_free(sock.cache);
     }
 
     qm.k_pop(1);
-
-    std.debug.print("CLOSE.SECURE.SOCKET",.{});
 }

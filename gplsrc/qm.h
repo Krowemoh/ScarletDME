@@ -62,6 +62,13 @@
 
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
+#include "../lib/zig_ssl_config.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/x509.h"
+#include "mbedtls/error.h"
+#include "mbedtls/debug.h"
+#include "mbedtls/ssl_cache.h"
 
 #include "qmdefs.h"
 

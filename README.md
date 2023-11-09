@@ -67,6 +67,7 @@ This is a list of what I've done since forking:
 27 OCT 2023 - Changed mark_mapping to be a byte instead of a bitfield.
 03 NOV 2023 - Rewrote op_time (TIME()) in Zig
 04 NOV 2023 - Added new mode, TIME.MS, to get time with milliseconds
+08 NOV 2023 - Added secure sockets using mbedtls
 ```
 
 ## Zig Installation

@@ -7,6 +7,8 @@ const qm = @cImport({
 var allocator = std.heap.c_allocator;
 
 export fn op_secure_server_socket() void {
+    qm.process.status = 0;
+
     var ok: bool = undefined;
 
     var key_path: [1025]u8 = std.mem.zeroes([1025:0]u8);
@@ -202,6 +204,8 @@ export fn op_secure_server_socket() void {
 }
 
 export fn op_secure_accept_socket() void {
+    qm.process.status = 0;
+
     var flags: i32 = undefined;
     var server_socket: *qm.DESCRIPTOR = undefined;
 
@@ -211,6 +215,9 @@ export fn op_secure_accept_socket() void {
 
     server_socket = qm.e_stack - 2;
     while (server_socket.*.type == qm.ADDR) : (server_socket = server_socket.*.data.d_addr) { }
+
+    qm.k_pop(1);
+    qm.k_dismiss();
 
     var ret: i32 = undefined;
 
@@ -244,6 +251,10 @@ export fn op_secure_accept_socket() void {
         if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
             std.debug.print("SSL Handshake Failed: {}\n", .{ret});
             qm.process.status = 2;
+
+            qm.e_stack.*.type = qm.INTEGER;
+            qm.e_stack.*.data.value = 1;
+            qm.e_stack = qm.e_stack + 1;
             return;
         }
     }
@@ -258,15 +269,14 @@ export fn op_secure_accept_socket() void {
     socket.fd = client_fd;
     socket.ssl = sock.ssl;
 
-    qm.k_pop(1);
-    qm.k_dismiss();
-
     qm.e_stack.*.type = qm.SOCK;
     qm.e_stack.*.data.sock = socket;
     qm.e_stack = qm.e_stack + 1;
 }
 
 export fn op_secure_read_socket() void {
+    qm.process.status = 0;
+
     var timeout: i32 = undefined;
     var flags: i32 = undefined;
     var max_len: usize = undefined;
@@ -310,6 +320,8 @@ export fn op_secure_read_socket() void {
 }
 
 export fn op_secure_write_socket() void {
+    qm.process.status = 0;
+
     var timeout: i32 = undefined;
     var flags: i32 = undefined;
     var str: ?*qm.STRING_CHUNK = undefined;
@@ -366,6 +378,8 @@ export fn op_secure_write_socket() void {
 }
 
 export fn op_secure_close_socket() void {
+    qm.process.status = 0;
+
     var descr = qm.e_stack - 1;
     while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
 

@@ -17,7 +17,7 @@ export fn op_secure_server_socket() void {
     var ip_addr: [81]u8 = std.mem.zeroes([81:0]u8);
 
     const arg5 = qm.e_stack - 1;
-    ok = qm.k_get_c_string(arg5, &key_path, 1025) > 0;
+    ok = qm.k_get_c_string(arg5, &key_path, 1024) > 0;
     if (!ok) {
         std.debug.print("Invalid string for key.\n", .{});
         qm.process.status = 2;
@@ -25,7 +25,7 @@ export fn op_secure_server_socket() void {
     }
 
     const arg4 = qm.e_stack - 2;
-    ok = qm.k_get_c_string(arg4, &certificate_path, 1025) > 0;
+    ok = qm.k_get_c_string(arg4, &certificate_path, 1024) > 0;
     if (!ok) {
         std.debug.print("Invalid string for certificate.\n", .{});
         qm.process.status = 2;

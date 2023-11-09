@@ -4044,7 +4044,7 @@ end
                       in.one,         ;* COS
                       in.two,         ;* COUNT
                       in.two,         ;* COUNTS
-                      in.create.socket.server, ;* CREATE.SECURE.SERVER.SOCKET
+                      in.five,        ;* CREATE.SECURE.SERVER.SOCKET
                       in.create.socket.server, ;* CREATE.SERVER.SOCKET
                       in.one,         ;* CROP
                       in.csvdq,       ;* CSVDQ

@@ -9,30 +9,49 @@ var allocator = std.heap.c_allocator;
 export fn op_secure_server_socket() void {
     var ok: bool = undefined;
 
+    var key_path: [1025]u8 = std.mem.zeroes([1025:0]u8);
+    var certificate_path: [1025]u8 = std.mem.zeroes([1025:0]u8);
+
     var flags: i32 = undefined;
     var port_number: [31]u8 = std.mem.zeroes([31:0]u8);
     var ip_addr: [81]u8 = std.mem.zeroes([81:0]u8);
 
-    const arg3 = qm.e_stack - 2;
-    qm.k_get_int(arg3);
-    flags = arg3.*.data.value;
-
-    const arg2 = qm.e_stack - 3;
-    ok = qm.k_get_c_string(arg2, &port_number, 31) > 0;
+    const arg5 = qm.e_stack - 1;
+    ok = qm.k_get_c_string(arg5, &key_path, 1025) > 0;
     if (!ok) {
-        std.debug.print("Invalid string for port.\n", .{});
+        std.debug.print("Invalid string for key.\n", .{});
         qm.process.status = 2;
         return;
     }
 
-    const port = std.fmt.parseInt(i32, std.mem.sliceTo(&port_number,0), 10) catch | err | {
-        std.debug.print("Invalid parse int for port. - {}\n", .{err});
+    const arg4 = qm.e_stack - 2;
+    ok = qm.k_get_c_string(arg4, &certificate_path, 1025) > 0;
+    if (!ok) {
+        std.debug.print("Invalid string for certificate.\n", .{});
+        qm.process.status = 2;
+        return;
+    }
+
+    const arg3 = qm.e_stack - 3;
+    qm.k_get_int(arg3);
+    flags = arg3.*.data.value;
+
+    const arg2 = qm.e_stack - 4;
+    ok = qm.k_get_c_string(arg2, &port_number, 30) > 0;
+    if (!ok) {
+        std.debug.print("Invalid string for port.{any}\n", .{port_number});
+        qm.process.status = 2;
+        return;
+    }
+
+    const port = std.fmt.parseInt(i32, std.mem.sliceTo(&port_number,0), 10) catch {
+        std.debug.print("Invalid parse int for port. - {s}\n", .{port_number});
         qm.process.status = 2;
         return;
     };
     _ = port;
  
-    const arg1 = qm.e_stack - 4;
+    const arg1 = qm.e_stack - 5;
     ok = qm.k_get_c_string(arg1, &ip_addr, 80) >= 0;
 
     if (std.mem.sliceTo(&ip_addr,0).len == 0) {
@@ -80,8 +99,7 @@ export fn op_secure_server_socket() void {
     }
 
     // Set Certificate
-    var certificate_path = "/home/nivethan/certs/selfsigned.crt";
-    ret = qm.mbedtls_x509_crt_parse_file(srvcrt, certificate_path);
+    ret = qm.mbedtls_x509_crt_parse_file(srvcrt, &certificate_path);
     if (ret != 0) {
         std.debug.print("Parsing Certificate Failed: {}\n", .{ret});
         qm.process.status = 2;
@@ -89,8 +107,7 @@ export fn op_secure_server_socket() void {
     }
 
     // Set Key
-    var key_path = "/home/nivethan/certs/selfsigned.key";
-    ret = qm.mbedtls_pk_parse_keyfile(pkey, key_path, 0);
+    ret = qm.mbedtls_pk_parse_keyfile(pkey, &key_path, 0);
     if (ret != 0) {
         std.debug.print("Parsing Key Failed: {}\n", .{ret});
         qm.process.status = 2;
@@ -141,6 +158,7 @@ export fn op_secure_server_socket() void {
     socket.pkey = pkey;
     socket.cache = cache;
 
+    qm.k_dismiss();
     qm.k_dismiss();
     qm.k_pop(2);
     qm.k_dismiss();

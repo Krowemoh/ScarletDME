@@ -20,7 +20,7 @@ export fn op_secure_server_socket() void {
     const arg2 = qm.e_stack - 3;
     ok = qm.k_get_c_string(arg2, &port_number, 31) > 0;
     if (!ok) {
-        std.debug.print("Invalid string for ip port.\n", .{});
+        std.debug.print("Invalid string for port.\n", .{});
         qm.process.status = 2;
         return;
     }
@@ -151,15 +151,23 @@ export fn op_secure_server_socket() void {
 }
 
 export fn op_secure_accept_socket() void {
-    var descr = qm.e_stack - 2;
-    while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
+
+    var flags: i32 = undefined;
+    var server_socket: *qm.DESCRIPTOR = undefined;
+
+    const arg2 = qm.e_stack - 1;
+    qm.k_get_int(arg2);
+    flags = arg2.*.data.value;
+
+    server_socket = qm.e_stack - 2;
+    while (server_socket.*.type == qm.ADDR) : (server_socket = server_socket.*.data.d_addr) { }
 
     var ret: i32 = undefined;
 
     var client_fd = allocator.create(qm.mbedtls_net_context) catch unreachable;
     qm.mbedtls_net_init(client_fd);
 
-    var sock = descr.*.data.sock.*;
+    var sock = server_socket.*.data.sock.*;
 
     ret = qm.mbedtls_ssl_session_reset(sock.ssl);
     if (ret != 0) {

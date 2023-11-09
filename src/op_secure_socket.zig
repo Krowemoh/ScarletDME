@@ -50,7 +50,7 @@ export fn op_secure_server_socket() void {
         return;
     };
     _ = port;
- 
+
     const arg1 = qm.e_stack - 5;
     ok = qm.k_get_c_string(arg1, &ip_addr, 80) >= 0;
 
@@ -63,19 +63,47 @@ export fn op_secure_server_socket() void {
         qm.process.status = 2;
         return;
     }
- 
+
     var ret: i32 = undefined;
 
     // Initalize SSL 
-    var listen_fd = allocator.create(qm.mbedtls_net_context) catch unreachable;
-    var entropy = allocator.create(qm.mbedtls_entropy_context) catch unreachable;
-    var ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch unreachable;
-    var ssl = allocator.create(qm.mbedtls_ssl_context) catch unreachable;
+    var listen_fd = allocator.create(qm.mbedtls_net_context) catch {
+        std.debug.print("Failed to allocate server socket.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+    var entropy = allocator.create(qm.mbedtls_entropy_context) catch {
+        std.debug.print("Failed to allocate entropy context.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+    var ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch {
+        std.debug.print("Failed to allocate ctr_drbg.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+    var ssl = allocator.create(qm.mbedtls_ssl_context) catch {
+        std.debug.print("Failed to allocate ssl context.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
     var conf_ctx = qm.zmbedtls_ssl_config_alloc();
     var conf: *qm.mbedtls_ssl_config = @ptrCast(conf_ctx);
-    var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch unreachable;
-    var pkey = allocator.create(qm.mbedtls_pk_context) catch unreachable;
-    var cache = allocator.create(qm.mbedtls_ssl_cache_context) catch unreachable;
+    var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch {
+        std.debug.print("Failed to allocate server certificate.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+    var pkey = allocator.create(qm.mbedtls_pk_context) catch {
+        std.debug.print("Failed to allocate pkey.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+    var cache = allocator.create(qm.mbedtls_ssl_cache_context) catch {
+        std.debug.print("Failed to allocate ssl cache.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
 
     qm.mbedtls_net_init(listen_fd);
 
@@ -147,7 +175,12 @@ export fn op_secure_server_socket() void {
         return;
     }
 
-    var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch unreachable;
+    var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
+        std.debug.print("Failed to allocate server SOCKVAR.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+
     socket.server = 1;
     socket.fd = listen_fd;
     socket.entropy = entropy;
@@ -181,7 +214,11 @@ export fn op_secure_accept_socket() void {
 
     var ret: i32 = undefined;
 
-    var client_fd = allocator.create(qm.mbedtls_net_context) catch unreachable;
+    var client_fd = allocator.create(qm.mbedtls_net_context) catch {
+        std.debug.print("Failed to allocate client socket.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
     qm.mbedtls_net_init(client_fd);
 
     var sock = server_socket.*.data.sock.*;
@@ -211,7 +248,12 @@ export fn op_secure_accept_socket() void {
         }
     }
 
-    var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch unreachable;
+    var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
+        std.debug.print("Failed to allocate client SOCKVAR.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
+
     socket.server = 0;
     socket.fd = client_fd;
     socket.ssl = sock.ssl;
@@ -248,7 +290,11 @@ export fn op_secure_read_socket() void {
 
     var ret: i32 = undefined;
 
-    var buffer = allocator.alloc(u8, max_len+1) catch unreachable;
+    var buffer = allocator.alloc(u8, max_len+1) catch {
+        std.debug.print("Failed to allocate client read buffer.\n", .{});
+        qm.process.status = 2;
+        return;
+    };
     defer allocator.free(buffer);
     @memset(buffer,0);
 

@@ -7,6 +7,44 @@ const qm = @cImport({
 var allocator = std.heap.c_allocator;
 
 export fn op_secure_server_socket() void {
+    var ok: bool = undefined;
+
+    var flags: i32 = undefined;
+    var port_number: [31]u8 = std.mem.zeroes([31:0]u8);
+    var ip_addr: [81]u8 = std.mem.zeroes([81:0]u8);
+
+    const arg3 = qm.e_stack - 2;
+    qm.k_get_int(arg3);
+    flags = arg3.*.data.value;
+
+    const arg2 = qm.e_stack - 3;
+    ok = qm.k_get_c_string(arg2, &port_number, 31) > 0;
+    if (!ok) {
+        std.debug.print("Invalid string for ip port.\n", .{});
+        qm.process.status = 2;
+        return;
+    }
+
+    const port = std.fmt.parseInt(i32, std.mem.sliceTo(&port_number,0), 10) catch | err | {
+        std.debug.print("Invalid parse int for port. - {}\n", .{err});
+        qm.process.status = 2;
+        return;
+    };
+    _ = port;
+ 
+    const arg1 = qm.e_stack - 4;
+    ok = qm.k_get_c_string(arg1, &ip_addr, 80) >= 0;
+
+    if (std.mem.sliceTo(&ip_addr,0).len == 0) {
+        @memcpy(ip_addr[0..7],"0.0.0.0");
+    }
+
+    if (!ok) {
+        std.debug.print("Invalid string for ip address.\n", .{});
+        qm.process.status = 2;
+        return;
+    }
+ 
     var ret: i32 = undefined;
 
     // Initalize SSL 
@@ -60,7 +98,7 @@ export fn op_secure_server_socket() void {
     }
 
     // Create Socket
-    ret = qm.mbedtls_net_bind(listen_fd, null, "4433", qm.MBEDTLS_NET_PROTO_TCP);
+    ret = qm.mbedtls_net_bind(listen_fd, &ip_addr, &port_number, qm.MBEDTLS_NET_PROTO_TCP);
     if (ret != 0) {
         std.debug.print("Bind Failed: {}\n", .{ret});
         qm.process.status = 2;

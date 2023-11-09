@@ -151,7 +151,6 @@ export fn op_secure_server_socket() void {
 }
 
 export fn op_secure_accept_socket() void {
-
     var flags: i32 = undefined;
     var server_socket: *qm.DESCRIPTOR = undefined;
 
@@ -208,21 +207,36 @@ export fn op_secure_accept_socket() void {
 }
 
 export fn op_secure_read_socket() void {
-    var descr = qm.e_stack - 4;
-    while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
+    var timeout: i32 = undefined;
+    var flags: i32 = undefined;
+    var max_len: usize = undefined;
 
-    var sock = descr.*.data.sock.*;
+    const arg4 = qm.e_stack - 1;
+    qm.k_get_int(arg4);
+    timeout = arg4.*.data.value;
+
+    const arg3 = qm.e_stack - 2;
+    qm.k_get_int(arg3);
+    flags = arg3.*.data.value;
+
+    const arg2 = qm.e_stack - 3;
+    qm.k_get_int(arg2);
+    max_len = @intCast(arg2.*.data.value);
+
+    var client_socket = qm.e_stack - 4;
+    while (client_socket.*.type == qm.ADDR) : (client_socket = client_socket.*.data.d_addr) { }
+
+    var sock = client_socket.*.data.sock.*;
 
     var ret: i32 = undefined;
-    var buffer: [1024]u8 = std.mem.zeroes([1024:0]u8);
 
-    ret = qm.mbedtls_ssl_read(sock.ssl, &buffer, 1024);
+    var buffer = allocator.alloc(u8, max_len+1) catch unreachable;
+    defer allocator.free(buffer);
+    @memset(buffer,0);
 
-    const c_str = allocator.alloc(u8,1025) catch unreachable;
-    @memset(c_str,0);
-    @memcpy(c_str[0..buffer.len],buffer[0..]);
+    ret = qm.mbedtls_ssl_read(sock.ssl, &buffer[0], @as(usize,max_len));
 
-    const retString: [*c]const u8 = &c_str[0];
+    const retString: [*c]const u8 = &buffer[0];
 
     qm.k_pop(3);
     qm.k_dismiss();
@@ -232,38 +246,58 @@ export fn op_secure_read_socket() void {
 }
 
 export fn op_secure_write_socket() void {
-    var descr = qm.e_stack - 4;
-    while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
+    var timeout: i32 = undefined;
+    var flags: i32 = undefined;
+    var str: ?*qm.STRING_CHUNK = undefined;
 
-    var sock = descr.*.data.sock.*;
+    const arg4 = qm.e_stack - 1;
+    qm.k_get_int(arg4);
+    timeout = arg4.*.data.value;
 
-    var buffer = "Hello, World!";
+    const arg3 = qm.e_stack - 2;
+    qm.k_get_int(arg3);
+    flags = arg3.*.data.value;
 
-    var ret: i32 = undefined;
+    const arg2 = qm.e_stack - 3;
+    qm.k_get_string(arg2);
+    str = arg2.*.data.str.saddr;
 
-    ret = qm.mbedtls_ssl_write(sock.ssl, buffer, buffer.len);
-    while (ret <= 0) : (ret = qm.mbedtls_ssl_write(sock.ssl, buffer, buffer.len)) {
-        if (ret == qm.MBEDTLS_ERR_NET_CONN_RESET) {
-            std.debug.print("Connection reset: {}\n", .{ret});
-            qm.process.status = 2;
-            return;
+    var client_socket = qm.e_stack - 4;
+    while (client_socket.*.type == qm.ADDR) : (client_socket = client_socket.*.data.d_addr) { }
 
+    var sock = client_socket.*.data.sock.*;
+
+    var bytes_sent: i32 = 0;
+
+    while (str != null) {
+        var p: *qm.STRING_CHUNK = str.?;
+
+        var len: usize = @intCast(p.bytes);
+        var ret: i32 = qm.mbedtls_ssl_write(sock.ssl, &p.data, len);
+
+        while (ret <= 0) : (ret = qm.mbedtls_ssl_write(sock.ssl, &p.data, len)) {
+            if (ret == qm.MBEDTLS_ERR_NET_CONN_RESET) {
+                std.debug.print("Connection reset: {}\n", .{ret});
+                qm.process.status = 2;
+                return;
+
+            }
+            if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
+                std.debug.print("SSL Write Failed: {}\n", .{ret});
+                qm.process.status = 2;
+                return;
+            }
         }
-        if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
-            std.debug.print("SSL Write Failed: {}\n", .{ret});
-            qm.process.status = 2;
-            return;
-        }
+        bytes_sent = bytes_sent + p.bytes;
+        str = p.next;
     }
-
-    var bytes = ret;
 
     qm.k_pop(2);
     qm.k_dismiss();
     qm.k_dismiss();
 
     qm.e_stack.*.type = qm.INTEGER;
-    qm.e_stack.*.data.value = bytes;
+    qm.e_stack.*.data.value = bytes_sent;
     qm.e_stack = qm.e_stack + 1;
 }
 

@@ -6,6 +6,20 @@ const qm = @cImport({
 
 var allocator = std.heap.c_allocator;
 
+fn qm_pop(n: i32) void {
+    var i: i32 = 0;
+    while (i < n) : (i = i + 1) {
+        qm.k_dismiss();
+    }
+}
+
+fn qm_error() void {
+    qm.process.status = 2;
+    qm.e_stack.*.type = qm.INTEGER;
+    qm.e_stack.*.data.value = 0;
+    qm.e_stack = qm.e_stack + 1;
+}
+
 export fn op_secure_server_socket() void {
     qm.process.status = 0;
 
@@ -22,7 +36,8 @@ export fn op_secure_server_socket() void {
     ok = qm.k_get_c_string(arg5, &key_path, 1024) > 0;
     if (!ok) {
         std.debug.print("Invalid string for key.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -30,7 +45,8 @@ export fn op_secure_server_socket() void {
     ok = qm.k_get_c_string(arg4, &certificate_path, 1024) > 0;
     if (!ok) {
         std.debug.print("Invalid string for certificate.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -42,13 +58,15 @@ export fn op_secure_server_socket() void {
     ok = qm.k_get_c_string(arg2, &port_number, 30) > 0;
     if (!ok) {
         std.debug.print("Invalid string for port.{any}\n", .{port_number});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
     const port = std.fmt.parseInt(i32, std.mem.sliceTo(&port_number,0), 10) catch {
         std.debug.print("Invalid parse int for port. - {s}\n", .{port_number});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     _ = port;
@@ -62,7 +80,8 @@ export fn op_secure_server_socket() void {
 
     if (!ok) {
         std.debug.print("Invalid string for ip address.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -71,39 +90,46 @@ export fn op_secure_server_socket() void {
     // Initalize SSL 
     var listen_fd = allocator.create(qm.mbedtls_net_context) catch {
         std.debug.print("Failed to allocate server socket.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var entropy = allocator.create(qm.mbedtls_entropy_context) catch {
         std.debug.print("Failed to allocate entropy context.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch {
         std.debug.print("Failed to allocate ctr_drbg.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var ssl = allocator.create(qm.mbedtls_ssl_context) catch {
         std.debug.print("Failed to allocate ssl context.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var conf_ctx = qm.zmbedtls_ssl_config_alloc();
     var conf: *qm.mbedtls_ssl_config = @ptrCast(conf_ctx);
     var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch {
         std.debug.print("Failed to allocate server certificate.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var pkey = allocator.create(qm.mbedtls_pk_context) catch {
         std.debug.print("Failed to allocate pkey.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
     var cache = allocator.create(qm.mbedtls_ssl_cache_context) catch {
         std.debug.print("Failed to allocate ssl cache.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
 
@@ -124,7 +150,8 @@ export fn op_secure_server_socket() void {
     ret = qm.mbedtls_ctr_drbg_seed(ctr_drbg, qm.mbedtls_entropy_func, entropy, pers, pers.len);
     if (ret != 0) {
         std.debug.print("Seed Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -132,7 +159,8 @@ export fn op_secure_server_socket() void {
     ret = qm.mbedtls_x509_crt_parse_file(srvcrt, &certificate_path);
     if (ret != 0) {
         std.debug.print("Parsing Certificate Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -140,7 +168,8 @@ export fn op_secure_server_socket() void {
     ret = qm.mbedtls_pk_parse_keyfile(pkey, &key_path, 0);
     if (ret != 0) {
         std.debug.print("Parsing Key Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -148,14 +177,16 @@ export fn op_secure_server_socket() void {
     ret = qm.mbedtls_net_bind(listen_fd, &ip_addr, &port_number, qm.MBEDTLS_NET_PROTO_TCP);
     if (ret != 0) {
         std.debug.print("Bind Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
     ret = qm.mbedtls_ssl_config_defaults(conf, qm.MBEDTLS_SSL_IS_SERVER, qm.MBEDTLS_SSL_TRANSPORT_STREAM, qm.MBEDTLS_SSL_PRESET_DEFAULT);
     if (ret != 0) {
         std.debug.print("SSL Defaults failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
@@ -166,20 +197,23 @@ export fn op_secure_server_socket() void {
     ret = qm.mbedtls_ssl_conf_own_cert(conf, srvcrt, pkey);
     if (ret != 0) {
         std.debug.print("SSL Conf Own Cert Returned: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
     ret = qm.mbedtls_ssl_setup(ssl, conf);
     if (ret != 0) {
         std.debug.print("SSL Setup Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     }
 
     var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
         std.debug.print("Failed to allocate server SOCKVAR.\n", .{});
-        qm.process.status = 2;
+        qm_pop(5);
+        qm_error();
         return;
     };
 
@@ -193,10 +227,7 @@ export fn op_secure_server_socket() void {
     socket.pkey = pkey;
     socket.cache = cache;
 
-    qm.k_dismiss();
-    qm.k_dismiss();
-    qm.k_pop(2);
-    qm.k_dismiss();
+    qm_pop(5);
 
     qm.e_stack.*.type = qm.SOCK;
     qm.e_stack.*.data.sock = socket;
@@ -216,14 +247,12 @@ export fn op_secure_accept_socket() void {
     server_socket = qm.e_stack - 2;
     while (server_socket.*.type == qm.ADDR) : (server_socket = server_socket.*.data.d_addr) { }
 
-    qm.k_pop(1);
-    qm.k_dismiss();
-
     var ret: i32 = undefined;
 
     var client_fd = allocator.create(qm.mbedtls_net_context) catch {
         std.debug.print("Failed to allocate client socket.\n", .{});
-        qm.process.status = 2;
+        qm_pop(2);
+        qm_error();
         return;
     };
     qm.mbedtls_net_init(client_fd);
@@ -233,14 +262,16 @@ export fn op_secure_accept_socket() void {
     ret = qm.mbedtls_ssl_session_reset(sock.ssl);
     if (ret != 0) {
         std.debug.print("Reset Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(2);
+        qm_error();
         return;
     }
 
     ret = qm.mbedtls_net_accept(sock.fd, client_fd, null, 0, null);
     if (ret != 0) {
         std.debug.print("Accept Failed: {}\n", .{ret});
-        qm.process.status = 2;
+        qm_pop(2);
+        qm_error();
         return;
     }
 
@@ -250,24 +281,24 @@ export fn op_secure_accept_socket() void {
     while (ret != 0) : (ret = qm.mbedtls_ssl_handshake(sock.ssl)) {
         if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
             std.debug.print("SSL Handshake Failed: {}\n", .{ret});
-            qm.process.status = 2;
-
-            qm.e_stack.*.type = qm.INTEGER;
-            qm.e_stack.*.data.value = 1;
-            qm.e_stack = qm.e_stack + 1;
+            qm_pop(2);
+            qm_error();
             return;
         }
     }
 
     var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
         std.debug.print("Failed to allocate client SOCKVAR.\n", .{});
-        qm.process.status = 2;
+        qm_pop(2);
+        qm_error();
         return;
     };
 
     socket.server = 0;
     socket.fd = client_fd;
     socket.ssl = sock.ssl;
+
+    qm_pop(2);
 
     qm.e_stack.*.type = qm.SOCK;
     qm.e_stack.*.data.sock = socket;
@@ -302,7 +333,8 @@ export fn op_secure_read_socket() void {
 
     var buffer = allocator.alloc(u8, max_len+1) catch {
         std.debug.print("Failed to allocate client read buffer.\n", .{});
-        qm.process.status = 2;
+        qm_pop(4);
+        qm_error();
         return;
     };
     defer allocator.free(buffer);
@@ -312,8 +344,7 @@ export fn op_secure_read_socket() void {
 
     const retString: [*c]const u8 = &buffer[0];
 
-    qm.k_pop(3);
-    qm.k_dismiss();
+    qm_pop(4);
 
     qm.k_put_c_string(retString, qm.e_stack);
     qm.e_stack = qm.e_stack + 1;
@@ -354,13 +385,15 @@ export fn op_secure_write_socket() void {
         while (ret <= 0) : (ret = qm.mbedtls_ssl_write(sock.ssl, &p.data, len)) {
             if (ret == qm.MBEDTLS_ERR_NET_CONN_RESET) {
                 std.debug.print("Connection reset: {}\n", .{ret});
-                qm.process.status = 2;
+                qm_pop(4);
+                qm_error();
                 return;
 
             }
             if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
                 std.debug.print("SSL Write Failed: {}\n", .{ret});
-                qm.process.status = 2;
+                qm_pop(4);
+                qm_error();
                 return;
             }
         }
@@ -368,9 +401,7 @@ export fn op_secure_write_socket() void {
         str = p.next;
     }
 
-    qm.k_pop(2);
-    qm.k_dismiss();
-    qm.k_dismiss();
+    qm_pop(4);
 
     qm.e_stack.*.type = qm.INTEGER;
     qm.e_stack.*.data.value = bytes_sent;
@@ -390,7 +421,8 @@ export fn op_secure_close_socket() void {
         while (ret < 0) : (ret = qm.mbedtls_ssl_close_notify(sock.ssl)) {
             if (ret != qm.MBEDTLS_ERR_SSL_WANT_READ and ret != qm.MBEDTLS_ERR_SSL_WANT_WRITE) {
                 std.debug.print("SSL Close Failed: {}\n", .{ret});
-                qm.process.status = 2;
+                qm_pop(1);
+                qm_error();
                 return;
             }
         }
@@ -407,5 +439,5 @@ export fn op_secure_close_socket() void {
         qm.mbedtls_ssl_cache_free(sock.cache);
     }
 
-    qm.k_pop(1);
+    qm_pop(1);
 }

@@ -146,7 +146,7 @@ export fn op_secure_server_socket() void {
     qm.mbedtls_ssl_cache_init(cache);
 
     // Seed
-    const pers = "ssl_server";
+    const pers = "snPgPTh7iVLQrok6EfZA";
     ret = qm.mbedtls_ctr_drbg_seed(ctr_drbg, qm.mbedtls_entropy_func, entropy, pers, pers.len);
     if (ret != 0) {
         std.debug.print("Seed Failed: {}\n", .{ret});
@@ -218,6 +218,7 @@ export fn op_secure_server_socket() void {
     };
 
     socket.server = 1;
+
     socket.fd = listen_fd;
     socket.entropy = entropy;
     socket.ctr_drbg = ctr_drbg;
@@ -287,21 +288,21 @@ export fn op_secure_accept_socket() void {
         }
     }
 
-    var socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
+    var client_socket: *qm.SOCKVAR = allocator.create(qm.SOCKVAR) catch { 
         std.debug.print("Failed to allocate client SOCKVAR.\n", .{});
         qm_pop(2);
         qm_error();
         return;
     };
 
-    socket.server = 0;
-    socket.fd = client_fd;
-    socket.ssl = sock.ssl;
+    client_socket.server = 0;
+    client_socket.fd = client_fd;
+    client_socket.ssl = sock.ssl;
 
     qm_pop(2);
 
     qm.e_stack.*.type = qm.SOCK;
-    qm.e_stack.*.data.sock = socket;
+    qm.e_stack.*.data.sock = client_socket;
     qm.e_stack = qm.e_stack + 1;
 }
 

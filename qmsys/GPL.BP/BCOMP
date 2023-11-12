@@ -669,6 +669,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "FMTS"            ; intrinsic.opcodes<-1> = OP.FMTS
    intrinsics<-1> = "FOLD"            ; intrinsic.opcodes<-1> = OP.FOLD
    intrinsics<-1> = "FOLDS"           ; intrinsic.opcodes<-1> = OP.FOLDS
+   intrinsics<-1> = "FORK"           ; intrinsic.opcodes<-1> = OP.FORK
    intrinsics<-1> = "GES"             ; intrinsic.opcodes<-1> = OP.GES
    intrinsics<-1> = "GET.MESSAGES"    ; intrinsic.opcodes<-1> = OP.GETMSG
    intrinsics<-1> = "GET.PORT.PARAMS" ; intrinsic.opcodes<-1> = OP.GETPORT
@@ -4073,6 +4074,7 @@ end
                       in.two,         ;* FMTS
                       in.fold,        ;* FOLD
                       in.fold,        ;* FOLDS
+                      in.none,        ;* FORK
                       in.two,         ;* GES
                       in.none,        ;* GET.MESSAGES
                       in.one,         ;* GET.PORT.PARAMS

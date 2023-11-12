@@ -285,7 +285,7 @@ $catalog $BCOMP
 
 $include syscom.h
 $include tokens.h
-$include BP opcodes.h
+$include opcodes.h
 $include header.h
 $include dictdict.h
 $include int$keys.h

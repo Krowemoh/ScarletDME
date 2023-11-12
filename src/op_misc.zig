@@ -34,3 +34,9 @@ export fn op_timems() void {
     qm.e_stack.*.data.float_value = localSeconds;
     qm.e_stack = qm.e_stack + 1;
 }
+
+export fn op_fork() void {
+    qm.e_stack.*.type = @as(i16, qm.INTEGER);
+    qm.e_stack.*.data.value = 1;
+    qm.e_stack = qm.e_stack + 1;
+}

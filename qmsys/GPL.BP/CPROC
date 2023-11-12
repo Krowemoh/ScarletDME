@@ -211,8 +211,8 @@ $catalog $CPROC
 $flags cproc
 $flags trusted
 
-$execute 'BASIC REVSTAMP'
-$execute 'RUN REVSTAMP'
+$execute 'BASIC GPL.BP REVSTAMP'
+$execute 'RUN GPL.BP REVSTAMP'
 $include revstamp.h
 
 $include syscom.h

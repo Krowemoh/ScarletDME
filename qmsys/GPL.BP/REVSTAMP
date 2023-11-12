@@ -1,5 +1,5 @@
 * REVSTAMP
-* Generate BP REVSTAMP.H from CSRC equivalent
+* Generate BP REVSTAMP.H from gplsrc equivalent
 * Copyright (c) 2004 Ladybridge Systems, All Rights Reserved
 *
 * This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 * START-CODE
 
 program revstamp
-   openseq 'CSRC', 'revstamp.h' to in.f else abort 'Cannot open CSRC revstamp.h'
+   openseq './gplsrc/revstamp.h' to in.f else abort 'Cannot open ./gplsrc/revstamp.h'
    openseq 'BP', 'REVSTAMP.H' to out.f else
       if status() then abort 'Cannot open BP REVSTAMP.H'
    end

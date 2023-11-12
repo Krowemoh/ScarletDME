@@ -104,6 +104,11 @@ cp utils/pcode "$INSTROOT/bin/pcode"
 chown qmsys:qmusers "$INSTROOT/bin" $INSTROOT/bin/*
 chmod 775 "$INSTROOT/bin" $INSTROOT/bin/*
 
+mkdir "$INSTROOT/gplsrc"
+cp gplsrc/err.h "$INSTROOT/gplsrc"
+cp gplsrc/opcodes.h "$INSTROOT/gplsrc"
+cp gplsrc/revstamp.h "$INSTROOT/gplsrc"
+
 # Copy QM configuration to /etc
 
 echo "Creating /etc/scarlet.conf"

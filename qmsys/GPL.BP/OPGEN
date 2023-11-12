@@ -30,7 +30,7 @@
 
 program opgen
    openseq './gplsrc/opcodes.h' to in.f else stop 'Cannot open ./gplsrc/opcodes.h'
-   openseq 'BP', 'OPCODES.H' to out.f else
+   openseq 'GPL.BP', 'OPCODES.H' to out.f else
       if status() then stop 'Cannot open OPCODES.H'
    end
    weofseq out.f

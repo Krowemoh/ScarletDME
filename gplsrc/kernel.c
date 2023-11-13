@@ -172,6 +172,7 @@ void (*dispatch[])(void) = {
 #undef _opc_
 
 Private void kill_process(void);
+Private void kill_child_process(void);
 Private void unwind_stack(void);
 Private void k_release_vars(void);
 Private void dump_status(void);
@@ -397,7 +398,9 @@ int16_t assign_user_no(int16_t user_table_index) {
 /* ======================================================================
    Kernel                                                                 */
 
-void kernel() {
+int kernel() {
+  int is_forked = 0;
+
   int32_t retained_flags;
   char processor[MAX_PROGRAM_NAME_LEN + 1];
   bool aborting = FALSE;
@@ -452,6 +455,10 @@ void kernel() {
         txn_abort();
         kill_process();
         goto exit_kernel;
+
+      case K_EXIT_CHILD: /* Immediate termination of forked child*/
+        is_forked = 1;
+        goto exit_kernel;
     }
 
     k_exit_cause = 0;
@@ -493,7 +500,7 @@ void kernel() {
 exit_kernel:
   como_close();
 
-  return;
+  return is_forked;
 }
 
 /* ======================================================================
@@ -631,6 +638,10 @@ void k_run_program() /* Returns FALSE if aborts */
         if (my_uptr->lockwait_index)
           clear_lockwait();
         Element(process.syscom, SYSCOM_ITYPE_MODE)->data.value = 0;
+        longjmp(k_exit, k_exit_cause);
+        break;
+
+      case K_EXIT_CHILD:
         longjmp(k_exit, k_exit_cause);
         break;
 

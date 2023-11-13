@@ -205,6 +205,7 @@ Public int16_t k_exit_cause; /* Kernel dispatch loop exit cause */
 #define K_LOGOUT 0x0006         /* Logout process on final return */
 #define K_TOGGLE_TRACER 0x0007  /* Enter or leave trace mode */
 #define K_CHAIN_PROC 0x0010     /* Chain to a PROC */
+#define K_EXIT_CHILD 0x0011     /* Exit a forked child */
 /* Special causes */
 #define K_QUIT 0x0020      /* Ctrl-C */
 #define K_TERMINATE 0x0040 /* Forced logout of process */

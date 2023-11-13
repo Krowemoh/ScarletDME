@@ -215,7 +215,7 @@ int16_t assign_user_no(int16_t user_table_index);
 bool init_kernel(void);
 int16_t in_group(char * name);
 char * account(void);
-void kernel(void);
+int kernel(void);
 void k_recurse(u_char * code_ptr, int num_args);
 void k_recurse_object(u_char * code_ptr, int num_args, OBJDATA * objdata);
 void k_call(char * name, int num_args, u_char * code_ptr, int16_t stack_adj);

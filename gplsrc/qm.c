@@ -264,17 +264,16 @@ int main(int argc, char *argv[]) {
   dump_pcode_file();
 #endif
 
-  kernel(); /* Run the command processor */
+  int is_forked = kernel(); /* Run the command processor */
 
-  s_free_all(); /* Only really needed for MEMTRACE */
+  if (is_forked == 0) {
+    s_free_all(); /* Only really needed for MEMTRACE */
+    status = exit_status;
+    clean_stop();
 
-  status = exit_status;
+  } else {
+  }
 
-  // abort:
-  //   dh_shutdown();
-  //   unbind_sysseg();
-  //   shut_console();
-  clean_stop();
   return status;
 }
 

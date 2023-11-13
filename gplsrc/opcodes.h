@@ -610,7 +610,7 @@ _opc_(0xCFF7, OP_SECURE_READ_SOCKET,     "READSECSKT",     op_secure_read_socket
 _opc_(0xCFF8, OP_SECURE_WRITE_SOCKET,     "WRITESECSKT",     op_secure_write_socket,  OPCODE_BYTE,         -1)
 _opc_(0xCFF9, OP_SECURE_CLOSE_SOCKET,     "CLOSESECSKT",     op_secure_close_socket,  OPCODE_BYTE,         -1)
 _opc_(0xCFFA, OP_FORK,     "FORK",     op_fork,  OPCODE_BYTE,         -1)
-_opc_(0xCFFB, OP_CFFB,     "OPCFFB",     op_illegal2,  OPCODE_BYTE,         0)
+_opc_(0xCFFB, OP_EXITCHILD,     "EXITCHILD",     op_exitchild,  OPCODE_BYTE,         0)
 _opc_(0xCFFC, OP_CFFC,     "OPCFFC",     op_illegal2,  OPCODE_BYTE,         0)
 _opc_(0xCFFD, OP_CFFD,     "OPCFFD",     op_illegal2,  OPCODE_BYTE,         0)
 _opc_(0xCFFE, OP_CFFE,     "OPCFFE",     op_illegal2,  OPCODE_BYTE,         0)

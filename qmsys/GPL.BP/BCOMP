@@ -501,7 +501,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    statements := @fm:"DIM":@fm:"DIMENSION":@fm:"DISINHERIT"
    statements := @fm:"DISPLAY":@fm:"DO":@fm:"DPARSE":@fm:"DPARSE.CSV"
    statements := @fm:"ECHO":@fm:"ELSE":@fm:"END":@fm:"ENTER":@fm:"ERRMSG"
-   statements := @fm:"EXECUTE":@fm:"EXIT"
+   statements := @fm:"EXECUTE":@fm:"EXIT":@fm:"EXIT.CHILD"
    statements := @fm:"FILE":@fm:"FILELOCK":@fm:"FILEUNLOCK":@fm:"FIND"
    statements := @fm:"FINDSTR":@fm:"FLUSH":@fm:"FOOTING":@fm:"FOR"
    statements := @fm:"FORMLIST"
@@ -2233,6 +2233,7 @@ is.statement:
                  st.errmsg,
                  st.execute,
                  st.exit,
+                 st.exitchild,
                  st.file,
                  st.filelock,
                  st.fileunlock,
@@ -6688,6 +6689,15 @@ st.continue.exit.common:
 
    label.name = "_":jump.stack<i,2>:label.name
    opcode.byte = OP.JMP ; gosub emit.jump
+   return
+
+*****************************************************************************
+* ST.EXITCHILD -  EXIT.CHILD statement
+
+st.exitchild:
+   opcode.byte = OP.EXITCHILD
+   gosub emit.simple
+
    return
 
 *****************************************************************************

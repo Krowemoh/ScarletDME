@@ -4,14 +4,8 @@ const qm = @cImport({
     @cInclude("qm.h");
 });
 
-//void op_time() {
-//  InitDescr(e_stack, INTEGER);
-//  (e_stack++)->data.value = local_time() % 86400L;
-//}
-
 export fn op_time() void {
     var localSeconds = @as(f64,@floatFromInt(@rem(qm.local_time(),86400)));
-
     qm.e_stack.*.type = @as(i16, qm.FLOATNUM);
     qm.e_stack.*.data.float_value = localSeconds;
     qm.e_stack = qm.e_stack + 1;
@@ -36,7 +30,23 @@ export fn op_timems() void {
 }
 
 export fn op_fork() void {
+    var pid: i32 = undefined;
+
+    pid = std.os.fork() catch {
+        qm.e_stack.*.type = @as(i16, qm.INTEGER);
+        qm.e_stack.*.data.value = -1;
+        qm.e_stack = qm.e_stack + 1;
+        return;
+    };
+
+    if (pid == 0) {
+    }
+
     qm.e_stack.*.type = @as(i16, qm.INTEGER);
-    qm.e_stack.*.data.value = 1;
+    qm.e_stack.*.data.value = pid;
     qm.e_stack = qm.e_stack + 1;
+}
+
+export fn op_exitchild() void {
+    qm.k_exit_cause = qm.K_EXIT_CHILD;
 }

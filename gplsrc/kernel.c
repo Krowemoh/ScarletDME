@@ -172,7 +172,6 @@ void (*dispatch[])(void) = {
 #undef _opc_
 
 Private void kill_process(void);
-Private void kill_child_process(void);
 Private void unwind_stack(void);
 Private void k_release_vars(void);
 Private void dump_status(void);

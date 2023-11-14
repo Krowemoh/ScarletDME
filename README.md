@@ -33,16 +33,6 @@ qm
 
 You should now be at TCL.
 
-## Platforms
-
-I have tested this version on the following systems:
-
-- Alpine Linux
-- CentOS 7
-- Debian 12
-- Tiny Core Linux
-- Ubuntu 20.04
-
 ## Links
 
 The manual for OpenQM is available on the wiki.
@@ -73,7 +63,7 @@ This is a list of what I've done since forking:
 
 ## Zig Installation
 
-A very quick guide to getting zig installed. This project uses Zig v11.
+This project uses Zig v11.
 
 ```
 wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz

@@ -1,5 +1,26 @@
 #!/usr/bin/env sh
 
+unameOut="$(uname -s)"
+
+case "${unameOut}" in
+    Linux*)     machine=Linux;;
+    Darwin*)    machine=Mac;;
+    CYGWIN*)    machine=Cygwin;;
+    MINGW*)     machine=MinGw;;
+    MSYS_NT*)   machine=Git;;
+    *)          machine="UNKNOWN:${unameOut}"
+esac
+
+if [[ "$machine" == "Mac" ]]; then
+    echo "Please use the Mac install script: utils/install-mac.sh"
+    exit 0
+fi
+
+if [[ "$machine" != "Linux" ]]; then
+    echo "This version of ScarletDME hasn't been set up for: $machine"
+    exit 0
+fi
+
 INSTROOT=/usr/qmsys
 
 # Create QM Group

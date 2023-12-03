@@ -23,6 +23,10 @@ fi
 
 INSTROOT=/usr/local/qmsys
 
+# Create /usr/local/bin if it doesn't exist
+
+mkdir -p -m 775 /usr/local/bin
+
 # Create QM Group
 
 if dscl . -list /Groups | grep qmusers > /dev/null 2>&1; then

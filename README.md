@@ -17,6 +17,12 @@ zig build
 sudo utils/install.sh
 ```
 
+There is an installation script for mac specifically:
+
+```
+sudo utils/install-mac.sh
+```
+
 Enable ScarletDME on boot:
 
 ```
@@ -59,11 +65,14 @@ This is a list of what I've done since forking:
 04 NOV 2023 - Added new mode, TIME.MS, to get time with milliseconds
 08 NOV 2023 - Added secure sockets using mbedtls
 13 NOV 2023 - Added forking support
+03 DEC 2023 - Added support for MacBook
 ```
 
 ## Zig Installation
 
 This project uses Zig v11.
+
+Linux:
 
 ```
 wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
@@ -71,4 +80,10 @@ tar xvf zig-linux-x86_64-0.11.0.tar.xz
 ln -s /root/zig-linux-x86_64-0.11.0/zig /usr/bin/zig
 ```
 
+Mac:
 
+```
+wget https://ziglang.org/download/0.11.0/zig-macos-aarch64-0.11.0.tar.xz
+tar xvf zig-macos-aarch64-0.11.0.tar.xz
+ln -s /Users/username/bp/zig-macos-aarch64-0.11.0/zig /usr/local/bin/zig
+```

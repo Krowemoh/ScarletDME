@@ -113,7 +113,8 @@ export fn op_secure_server_socket() void {
         return;
     };
     var conf_ctx = qm.zmbedtls_ssl_config_alloc();
-    var conf: *qm.mbedtls_ssl_config = @ptrCast(conf_ctx);
+    var conf: *qm.mbedtls_ssl_config = @ptrCast(@alignCast(conf_ctx));
+
     var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch {
         std.debug.print("Failed to allocate server certificate.\n", .{});
         qm_pop(5);

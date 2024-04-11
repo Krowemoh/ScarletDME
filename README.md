@@ -87,3 +87,7 @@ wget https://ziglang.org/download/0.11.0/zig-macos-aarch64-0.11.0.tar.xz
 tar xvf zig-macos-aarch64-0.11.0.tar.xz
 ln -s /Users/username/bp/zig-macos-aarch64-0.11.0/zig /usr/local/bin/zig
 ```
+
+## mbedtls
+
+This is pinned to version 2. Some work needs to be done to get things working with version 3.

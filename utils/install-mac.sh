@@ -96,7 +96,7 @@ cp gplsrc/revstamp.h "$INSTROOT/gplsrc"
 # Copy QM configuration to /etc
 
 echo "Creating /etc/scarlet.conf"
-cp utils/scarlet.conf /etc/scarlet.conf
+cp utils/scarlet-mac.conf /etc/scarlet.conf
 chmod 644 /etc/scarlet.conf
 
 # Make qm available to all users

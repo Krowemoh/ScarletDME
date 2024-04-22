@@ -70,7 +70,7 @@ This is a list of what I've done since forking:
 
 ## Zig Installation
 
-This project uses Zig v11.
+This project uses Zig v11 (Zig 12 is now released so will be updated.).
 
 Linux:
 

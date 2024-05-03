@@ -128,6 +128,20 @@ pub fn build(b: *std.build.Builder) void {
     secure_socket.linkSystemLibrary("mbedx509");
     secure_socket.linkLibC();
 
+    const hashmap = b.addStaticLibrary(.{
+        .name = "op_hashmap", 
+        .root_source_file = .{ .path = "src/op_hashmap.zig" } ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    hashmap.addIncludePath(.{ .path = "/opt/homebrew/include" });
+    hashmap.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
+    hashmap.addIncludePath(.{ .path = "gplsrc" });
+    hashmap.addIncludePath(.{ .path = "src" });
+    hashmap.linkLibC();
+
+
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, });
 
     qm.addIncludePath(.{ .path = "/opt/homebrew/include" });
@@ -225,6 +239,7 @@ pub fn build(b: *std.build.Builder) void {
     qm.linkLibrary(smath);
     qm.linkLibrary(misc);
     qm.linkLibrary(secure_socket);
+    qm.linkLibrary(hashmap);
 
     b.installArtifact(qm);
 }

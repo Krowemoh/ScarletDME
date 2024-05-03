@@ -164,6 +164,7 @@ Public struct
 
 Public char * null_string init("");
 Public char * CRLF init("\r\n");
+Public void * hashmap;
 
 /* ======================================================================
    Internal function definitions                                          */
@@ -505,5 +506,6 @@ void closeport(int hPort);
 int readport(int hPort, char * str, int16_t bytes);
 bool writeport(int hPort, char * str, int16_t bytes);
 #endif
+
 
 /* END-CODE */

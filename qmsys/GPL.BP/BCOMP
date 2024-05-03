@@ -501,7 +501,7 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    statements := @fm:"DIM":@fm:"DIMENSION":@fm:"DISINHERIT"
    statements := @fm:"DISPLAY":@fm:"DO":@fm:"DPARSE":@fm:"DPARSE.CSV"
    statements := @fm:"ECHO":@fm:"ELSE":@fm:"END":@fm:"ENTER":@fm:"ERRMSG"
-   statements := @fm:"EXECUTE":@fm:"EXIT":@fm:"EXIT.CHILD"
+   statements := @fm:"EXECUTE":@fm:"EXIT"
    statements := @fm:"FILE":@fm:"FILELOCK":@fm:"FILEUNLOCK":@fm:"FIND"
    statements := @fm:"FINDSTR":@fm:"FLUSH":@fm:"FOOTING":@fm:"FOR"
    statements := @fm:"FORMLIST"
@@ -669,7 +669,6 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "FMTS"            ; intrinsic.opcodes<-1> = OP.FMTS
    intrinsics<-1> = "FOLD"            ; intrinsic.opcodes<-1> = OP.FOLD
    intrinsics<-1> = "FOLDS"           ; intrinsic.opcodes<-1> = OP.FOLDS
-   intrinsics<-1> = "FORK"           ; intrinsic.opcodes<-1> = OP.FORK
    intrinsics<-1> = "GES"             ; intrinsic.opcodes<-1> = OP.GES
    intrinsics<-1> = "GET.MESSAGES"    ; intrinsic.opcodes<-1> = OP.GETMSG
    intrinsics<-1> = "GET.PORT.PARAMS" ; intrinsic.opcodes<-1> = OP.GETPORT
@@ -677,6 +676,9 @@ $define STACK.MARK 9999         ;* Marks start of sub-expression
    intrinsics<-1> = "GETPU"           ; intrinsic.opcodes<-1> = OP.GETPU
    intrinsics<-1> = "GETREM"          ; intrinsic.opcodes<-1> = OP.GETREM
    intrinsics<-1> = "GTS"             ; intrinsic.opcodes<-1> = OP.GTS
+   intrinsics<-1> = "HASHMAP.GET"           ; intrinsic.opcodes<-1> = OP.HASHMAP.GET
+   intrinsics<-1> = "HASHMAP.INIT"           ; intrinsic.opcodes<-1> = OP.HASHMAP.INIT
+   intrinsics<-1> = "HASHMAP.PUT"           ; intrinsic.opcodes<-1> = OP.HASHMAP.PUT
    intrinsics<-1> = "ICONV"           ; intrinsic.opcodes<-1> = OP.ICONV
    intrinsics<-1> = "ICONVS"          ; intrinsic.opcodes<-1> = OP.ICONVS
    intrinsics<-1> = "IDIV"            ; intrinsic.opcodes<-1> = OP.IDIV
@@ -2233,7 +2235,6 @@ is.statement:
                  st.errmsg,
                  st.execute,
                  st.exit,
-                 st.exitchild,
                  st.file,
                  st.filelock,
                  st.fileunlock,
@@ -4075,7 +4076,6 @@ end
                       in.two,         ;* FMTS
                       in.fold,        ;* FOLD
                       in.fold,        ;* FOLDS
-                      in.none,        ;* FORK
                       in.two,         ;* GES
                       in.none,        ;* GET.MESSAGES
                       in.one,         ;* GET.PORT.PARAMS
@@ -4083,6 +4083,9 @@ end
                       in.two,         ;* GETPU
                       in.one,         ;* GETREM
                       in.two,         ;* GTS
+                      in.two,        ;* HASHMAP.GET
+                      in.none,        ;* HASHMAP.INIT
+                      in.three,        ;* HASHMAP.PUT
                       in.two,         ;* ICONV
                       in.two,         ;* ICONVS
                       in.two,         ;* IDIV
@@ -6689,15 +6692,6 @@ st.continue.exit.common:
 
    label.name = "_":jump.stack<i,2>:label.name
    opcode.byte = OP.JMP ; gosub emit.jump
-   return
-
-*****************************************************************************
-* ST.EXITCHILD -  EXIT.CHILD statement
-
-st.exitchild:
-   opcode.byte = OP.EXITCHILD
-   gosub emit.simple
-
    return
 
 *****************************************************************************

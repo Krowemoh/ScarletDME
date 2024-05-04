@@ -6,7 +6,8 @@ const qm = @cImport({
 
 var allocator = std.heap.c_allocator;
 
-const V = []const u8;
+//const V = []const u8;
+const V = qm.DESCRIPTOR;
 
 fn qm_pop(n: i32) void {
     var i: i32 = 0;
@@ -45,8 +46,16 @@ export fn op_hashmap_put() void {
     var s3: [1025]u8 = std.mem.zeroes([1025:0]u8);
 
     const arg3 = qm.e_stack - 1;
+ 
+    var value = qm.DESCRIPTOR {
+        .type = arg3.*.type,
+        .flags = arg3.*.flags,
+        .data = arg3.*.data,
+        .n1 = arg3.*.n1,
+    };
+
     ok = qm.k_get_c_string(arg3, &s3, 1024) > 0;
-    qm.k_dismiss();
+    qm.k_pop(1);
 
     if (!ok) {
         std.debug.print("Failed to read value.", .{});
@@ -74,13 +83,7 @@ export fn op_hashmap_put() void {
         return;
 
     };
-    var value = allocator.dupeZ(u8,std.mem.sliceTo(&s3,0)) catch { 
-        std.debug.print("Error in putting value in hashmap.", .{});
-        qm_error();
-        return;
-    };
-
-    map.put(key, value) catch {
+       map.put(key, value) catch {
         std.debug.print("Error in putting value in hashmap.", .{});
         qm_error();
         return;
@@ -111,7 +114,7 @@ export fn op_hashmap_get() void {
     var map: *std.StringHashMap(V) = @alignCast(@ptrCast(qm.hashmap));
 
     var value = map.get(std.mem.sliceTo(&s2,0));
-    var buffer: []const u8 = undefined;
+    var buffer: qm.DESCRIPTOR = undefined;
 
     if (value) |v| {
         buffer = v;
@@ -120,9 +123,7 @@ export fn op_hashmap_get() void {
         return;
     }
 
-    const retString: [*c]const u8 = &buffer[0];
-
-    qm.k_put_c_string(retString, qm.e_stack);
+    qm.e_stack.*.type = buffer.type;
+    qm.e_stack.*.data = buffer.data;
     qm.e_stack = qm.e_stack + 1;
 }
-

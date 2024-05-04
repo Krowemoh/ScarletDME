@@ -70,6 +70,7 @@ This is a list of what I've done since forking:
 08 NOV 2023 - Added secure sockets using mbedtls
 13 NOV 2023 - Added forking support
 03 DEC 2023 - Added support for MacBook
+03 MAY 2024 - Removed forking
 ```
 
 ## Zig Installation

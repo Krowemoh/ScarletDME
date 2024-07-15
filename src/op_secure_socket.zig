@@ -88,46 +88,46 @@ export fn op_secure_server_socket() void {
     var ret: i32 = undefined;
 
     // Initalize SSL 
-    var listen_fd = allocator.create(qm.mbedtls_net_context) catch {
+    const listen_fd = allocator.create(qm.mbedtls_net_context) catch {
         std.debug.print("Failed to allocate server socket.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var entropy = allocator.create(qm.mbedtls_entropy_context) catch {
+    const entropy = allocator.create(qm.mbedtls_entropy_context) catch {
         std.debug.print("Failed to allocate entropy context.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch {
+    const ctr_drbg = allocator.create(qm.mbedtls_ctr_drbg_context) catch {
         std.debug.print("Failed to allocate ctr_drbg.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var ssl = allocator.create(qm.mbedtls_ssl_context) catch {
+    const ssl = allocator.create(qm.mbedtls_ssl_context) catch {
         std.debug.print("Failed to allocate ssl context.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var conf_ctx = qm.zmbedtls_ssl_config_alloc();
-    var conf: *qm.mbedtls_ssl_config = @ptrCast(@alignCast(conf_ctx));
+    const conf_ctx = qm.zmbedtls_ssl_config_alloc();
+    const conf: *qm.mbedtls_ssl_config = @ptrCast(@alignCast(conf_ctx));
 
-    var srvcrt = allocator.create(qm.mbedtls_x509_crt) catch {
+    const srvcrt = allocator.create(qm.mbedtls_x509_crt) catch {
         std.debug.print("Failed to allocate server certificate.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var pkey = allocator.create(qm.mbedtls_pk_context) catch {
+    const pkey = allocator.create(qm.mbedtls_pk_context) catch {
         std.debug.print("Failed to allocate pkey.\n", .{});
         qm_pop(5);
         qm_error();
         return;
     };
-    var cache = allocator.create(qm.mbedtls_ssl_cache_context) catch {
+    const cache = allocator.create(qm.mbedtls_ssl_cache_context) catch {
         std.debug.print("Failed to allocate ssl cache.\n", .{});
         qm_pop(5);
         qm_error();
@@ -251,7 +251,7 @@ export fn op_secure_accept_socket() void {
 
     var ret: i32 = undefined;
 
-    var client_fd = allocator.create(qm.mbedtls_net_context) catch {
+    const client_fd = allocator.create(qm.mbedtls_net_context) catch {
         std.debug.print("Failed to allocate client socket.\n", .{});
         qm_pop(2);
         qm_error();
@@ -259,7 +259,7 @@ export fn op_secure_accept_socket() void {
     };
     qm.mbedtls_net_init(client_fd);
 
-    var sock = server_socket.*.data.sock.*;
+    const sock = server_socket.*.data.sock.*;
 
     ret = qm.mbedtls_ssl_session_reset(sock.ssl);
     if (ret != 0) {
@@ -329,7 +329,7 @@ export fn op_secure_read_socket() void {
     var client_socket = qm.e_stack - 4;
     while (client_socket.*.type == qm.ADDR) : (client_socket = client_socket.*.data.d_addr) { }
 
-    var sock = client_socket.*.data.sock.*;
+    const sock = client_socket.*.data.sock.*;
 
     var ret: i32 = undefined;
 
@@ -374,14 +374,14 @@ export fn op_secure_write_socket() void {
     var client_socket = qm.e_stack - 4;
     while (client_socket.*.type == qm.ADDR) : (client_socket = client_socket.*.data.d_addr) { }
 
-    var sock = client_socket.*.data.sock.*;
+    const sock = client_socket.*.data.sock.*;
 
     var bytes_sent: i32 = 0;
 
     while (str != null) {
         var p: *qm.STRING_CHUNK = str.?;
 
-        var len: usize = @intCast(p.bytes);
+        const len: usize = @intCast(p.bytes);
         var ret: i32 = qm.mbedtls_ssl_write(sock.ssl, &p.data, len);
 
         while (ret <= 0) : (ret = qm.mbedtls_ssl_write(sock.ssl, &p.data, len)) {
@@ -416,7 +416,7 @@ export fn op_secure_close_socket() void {
     var descr = qm.e_stack - 1;
     while (descr.*.type == qm.ADDR) : (descr = descr.*.data.d_addr) { }
 
-    var sock: qm.SOCKVAR = descr.*.data.sock.*;
+    const sock: qm.SOCKVAR = descr.*.data.sock.*;
 
     if (sock.server == 0) {
         var ret = qm.mbedtls_ssl_close_notify(sock.ssl);

@@ -26,7 +26,7 @@ fn qm_error() void {
 export fn op_hashmap_init() void {
     qm.process.status = 0;
 
-    var map = allocator.create(std.StringHashMap(V)) catch {
+    const map = allocator.create(std.StringHashMap(V)) catch {
         std.debug.print("Failed to create map, possibly ran out of memory.", .{});
         qm_error();
         return;
@@ -47,7 +47,7 @@ export fn op_hashmap_put() void {
 
     const arg3 = qm.e_stack - 1;
  
-    var value = qm.DESCRIPTOR {
+    const value = qm.DESCRIPTOR {
         .type = arg3.*.type,
         .flags = arg3.*.flags,
         .data = arg3.*.data,
@@ -77,7 +77,7 @@ export fn op_hashmap_put() void {
 
     var map: *std.StringHashMap(V) = @alignCast(@ptrCast(qm.hashmap));
 
-    var key = allocator.dupeZ(u8,std.mem.sliceTo(&s2,0)) catch {
+    const key = allocator.dupeZ(u8,std.mem.sliceTo(&s2,0)) catch {
         std.debug.print("Error in putting value in hashmap.", .{});
         qm_error();
         return;
@@ -113,7 +113,7 @@ export fn op_hashmap_get() void {
 
     var map: *std.StringHashMap(V) = @alignCast(@ptrCast(qm.hashmap));
 
-    var value = map.get(std.mem.sliceTo(&s2,0));
+    const value = map.get(std.mem.sliceTo(&s2,0));
     var buffer: qm.DESCRIPTOR = undefined;
 
     if (value) |v| {

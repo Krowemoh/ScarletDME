@@ -3,6 +3,8 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
 
     const target = b.standardTargetOptions(.{});
+    const os = target.result.os.tag;
+
     const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = std.builtin.OptimizeMode.ReleaseFast });
 
     const cflags = [_][]const u8{
@@ -169,7 +171,10 @@ pub fn build(b: *std.Build) void {
 
     qm.linkLibC();
     qm.linkSystemLibrary("m");
-    qm.linkSystemLibrary("crypt");
+
+    if (os == .linux) {
+        qm.linkSystemLibrary("crypt");
+    }
     qm.linkSystemLibrary("dl");
 
     qm.addCSourceFiles(.{

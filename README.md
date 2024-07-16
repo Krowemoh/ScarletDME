@@ -88,9 +88,9 @@ ln -s /root/zig-linux-x86_64-0.12.0/zig /usr/bin/zig
 Mac:
 
 ```
-wget https://ziglang.org/download/0.11.0/zig-macos-aarch64-0.11.0.tar.xz
-tar xvf zig-macos-aarch64-0.11.0.tar.xz
-ln -s /Users/username/bp/zig-macos-aarch64-0.11.0/zig /usr/local/bin/zig
+wget https://ziglang.org/download/0.12.0/zig-macos-aarch64-0.12.0.tar.xz
+tar xvf zig-macos-aarch64-0.12.0.tar.xz
+ln -s /Users/username/bp/zig-macos-aarch64-0.12.0/zig /usr/local/bin/zig
 ```
 
 ## mbedtls

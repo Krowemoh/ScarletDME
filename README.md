@@ -71,18 +71,18 @@ This is a list of what I've done since forking:
 13 NOV 2023 - Added forking support
 03 DEC 2023 - Added support for MacBook
 03 MAY 2024 - Removed forking
+15 JUL 2024 - Upgraded from Zig 0.11.0 to 0.12.0
 ```
 
 ## Zig Installation
 
-This project uses Zig v11 (Zig 12 is now released so will be updated.).
+This project uses Zig 0.12.0.
 
 Linux:
 
 ```
-wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
-tar xvf zig-linux-x86_64-0.11.0.tar.xz
-ln -s /root/zig-linux-x86_64-0.11.0/zig /usr/bin/zig
+wget https://ziglang.org/download/0.12.0/zig-linux-x86_64-0.12.0.tar.xz
+ln -s /root/zig-linux-x86_64-0.12.0/zig /usr/bin/zig
 ```
 
 Mac:

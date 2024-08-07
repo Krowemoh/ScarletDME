@@ -72,25 +72,26 @@ This is a list of what I've done since forking:
 03 DEC 2023 - Added support for MacBook
 03 MAY 2024 - Removed forking
 15 JUL 2024 - Upgraded from Zig 0.11.0 to 0.12.0
+08 AUG 2024 - Upgraded from Zig 0.12.0 to 0.13.0
 ```
 
 ## Zig Installation
 
-This project uses Zig 0.12.0.
+This project uses Zig 0.13.0.
 
 Linux:
 
 ```
-wget https://ziglang.org/download/0.12.0/zig-linux-x86_64-0.12.0.tar.xz
-ln -s /root/zig-linux-x86_64-0.12.0/zig /usr/bin/zig
+wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
+ln -s /root/zig-linux-x86_64-0.13.0/zig /usr/bin/zig
 ```
 
 Mac:
 
 ```
-wget https://ziglang.org/download/0.12.0/zig-macos-aarch64-0.12.0.tar.xz
-tar xvf zig-macos-aarch64-0.12.0.tar.xz
-ln -s /Users/username/bp/zig-macos-aarch64-0.12.0/zig /usr/local/bin/zig
+wget https://ziglang.org/download/0.13.0/zig-macos-aarch64-0.13.0.tar.xz
+tar xvf zig-macos-aarch64-0.13.0.tar.xz
+ln -s /Users/username/bp/zig-macos-aarch64-0.13.0/zig /usr/local/bin/zig
 ```
 
 ## mbedtls

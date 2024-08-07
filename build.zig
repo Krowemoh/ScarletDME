@@ -21,8 +21,72 @@ pub fn build(b: *std.Build) void {
 
 
     const qmtic = b.addExecutable(.{ .name = "qmtic", .optimize = optimize, .target = target  });
-    qmtic.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qmtic.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
+    const qmfix = b.addExecutable(.{ .name = "qmfix", .optimize = optimize, .target = target  });
+    const qmconv = b.addExecutable(.{ .name = "qmconv", .optimize = optimize, .target = target  });
+    const qmidx = b.addExecutable(.{ .name = "qmidx", .optimize = optimize, .target = target  });
+    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .optimize = optimize, .target = target  });
+    const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, .target = target });
+
+    const smath = b.addStaticLibrary(.{
+        .name = "op_smath", 
+        .root_source_file = b.path("src/op_smath.zig") ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    const misc = b.addStaticLibrary(.{
+        .name = "op_misc", 
+        .root_source_file = b.path("src/op_misc.zig") ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    const secure_socket = b.addStaticLibrary(.{
+        .name = "op_secure_socket", 
+        .root_source_file = b.path("src/op_secure_socket.zig") ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    const hashmap = b.addStaticLibrary(.{
+        .name = "op_hashmap", 
+        .root_source_file = b.path("src/op_hashmap.zig") ,
+        .optimize = optimize,
+        .target = target,
+    });
+
+    if (os == .macos) {
+        qmtic.addIncludePath(b.path("/opt/homebrew/include"));
+        qmtic.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        qmfix.addIncludePath(b.path("/opt/homebrew/include"));
+        qmfix.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        qmconv.addIncludePath(b.path("/opt/homebrew/include"));
+        qmconv.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        qmidx.addIncludePath(b.path("/opt/homebrew/include"));
+        qmidx.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        qmlnxd.addIncludePath(b.path("/opt/homebrew/include"));
+        qmlnxd.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        qm.addIncludePath(b.path("/opt/homebrew/include"));
+        qm.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        smath.addIncludePath(b.path("/opt/homebrew/include"));
+        smath.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        misc.addIncludePath(b.path("/opt/homebrew/include"));
+        misc.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        secure_socket.addIncludePath(b.path("/opt/homebrew/include"));
+        secure_socket.addLibraryPath(b.path("/opt/homebrew/lib"));
+
+        hashmap.addIncludePath(b.path("/opt/homebrew/include"));
+        hashmap.addLibraryPath(b.path("/opt/homebrew/lib"));
+    }
+
     qmtic.linkLibC();
 
     qmtic.addCSourceFiles(.{
@@ -35,9 +99,6 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmtic);
 
-    const qmfix = b.addExecutable(.{ .name = "qmfix", .optimize = optimize, .target = target  });
-    qmfix.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qmfix.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
     qmfix.linkLibC();
 
     qmfix.addCSourceFiles(.{
@@ -53,9 +114,6 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmfix);
 
-    const qmconv = b.addExecutable(.{ .name = "qmconv", .optimize = optimize, .target = target  });
-    qmconv.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qmconv.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
     qmconv.linkLibC();
 
     qmconv.addCSourceFiles(.{
@@ -70,9 +128,7 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmconv);
 
-    const qmidx = b.addExecutable(.{ .name = "qmidx", .optimize = optimize, .target = target  });
-    qmidx.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qmidx.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
+
     qmidx.linkLibC();
 
     qmidx.addCSourceFiles(.{
@@ -84,9 +140,7 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmidx);
 
-    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .optimize = optimize, .target = target  });
-    qmlnxd.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qmlnxd.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
+
     qmlnxd.linkLibC();
 
     qmlnxd.addCSourceFiles(.{
@@ -99,44 +153,19 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmlnxd);
 
-    const smath = b.addStaticLibrary(.{
-        .name = "op_smath", 
-        .root_source_file = .{ .path = "src/op_smath.zig" } ,
-        .optimize = optimize,
-        .target = target,
-    });
 
-    smath.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    smath.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
-    smath.addIncludePath(.{ .path = "gplsrc" });
-    smath.addIncludePath(.{ .path = "src" });
+    smath.addIncludePath(b.path("gplsrc"));
+    smath.addIncludePath(b.path("src"));
     smath.linkLibC();
 
-    const misc = b.addStaticLibrary(.{
-        .name = "op_misc", 
-        .root_source_file = .{ .path = "src/op_misc.zig" } ,
-        .optimize = optimize,
-        .target = target,
-    });
 
-    misc.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    misc.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
-    misc.addIncludePath(.{ .path = "gplsrc" });
-    misc.addIncludePath(.{ .path = "src" });
+    misc.addIncludePath(b.path("gplsrc"));
+    misc.addIncludePath(b.path("src"));
     misc.linkLibC();
 
-    const secure_socket = b.addStaticLibrary(.{
-        .name = "op_secure_socket", 
-        .root_source_file = .{ .path = "src/op_secure_socket.zig" } ,
-        .optimize = optimize,
-        .target = target,
-    });
-
-    secure_socket.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    secure_socket.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
-    secure_socket.addIncludePath(.{ .path = "gplsrc" });
-    secure_socket.addIncludePath(.{ .path = "src" });
-    secure_socket.addIncludePath(.{ .path = "lib" });
+    secure_socket.addIncludePath(b.path("gplsrc"));
+    secure_socket.addIncludePath(b.path("src"));
+    secure_socket.addIncludePath(b.path("lib"));
 
     secure_socket.addCSourceFiles(.{
         .files = &.{
@@ -150,24 +179,11 @@ pub fn build(b: *std.Build) void {
     secure_socket.linkSystemLibrary("mbedx509");
     secure_socket.linkLibC();
 
-    const hashmap = b.addStaticLibrary(.{
-        .name = "op_hashmap", 
-        .root_source_file = .{ .path = "src/op_hashmap.zig" } ,
-        .optimize = optimize,
-        .target = target,
-    });
-
-    hashmap.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    hashmap.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
-    hashmap.addIncludePath(.{ .path = "gplsrc" });
-    hashmap.addIncludePath(.{ .path = "src" });
+    hashmap.addIncludePath(b.path("gplsrc"));
+    hashmap.addIncludePath(b.path("src"));
     hashmap.linkLibC();
 
 
-    const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, .target = target });
-
-    qm.addIncludePath(.{ .path = "/opt/homebrew/include" });
-    qm.addLibraryPath(.{ .path = "/opt/homebrew/lib" });
 
     qm.linkLibC();
     qm.linkSystemLibrary("m");
@@ -175,6 +191,7 @@ pub fn build(b: *std.Build) void {
     if (os == .linux) {
         qm.linkSystemLibrary("crypt");
     }
+
     qm.linkSystemLibrary("dl");
 
     qm.addCSourceFiles(.{

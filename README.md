@@ -73,6 +73,7 @@ This is a list of what I've done since forking:
 03 MAY 2024 - Removed forking
 15 JUL 2024 - Upgraded from Zig 0.11.0 to 0.12.0
 08 AUG 2024 - Upgraded from Zig 0.12.0 to 0.13.0
+11 SEP 2024 - BP created and NPM, NSH and EVA are loaded for new accounts
 ```
 
 ## Zig Installation

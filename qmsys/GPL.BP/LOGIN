@@ -697,6 +697,38 @@ create.account:
    end
 
 * ----------------------------------------
+
+   display sysmsg(6021, 'BP') ;* Creating BP
+   custom.programs = ''
+   custom.programs<-1> = 'NPM'
+   custom.programs<-1> = 'NSH'
+   custom.programs<-1> = 'EVA'
+
+   execute "CREATE.FILE BP DIRECTORY"
+
+   openpath "BP" to bp.file else
+      display sysmsg(2210) ;* Cannot open QMSYS NEWVOC
+      goto abort.login
+   end
+
+   openpath @qmsys:@ds:"BP" to qmsys.bp.file else
+      display sysmsg(2210) ;* Cannot open QMSYS NEWVOC
+      goto abort.login
+   end
+
+    for custom.program.ctr = 1 to dcount(custom.programs,@am)
+        custom.program.name = custom.programs<custom.program.ctr>
+        read custom.program from qmsys.bp.file,custom.program.name then
+            write custom.program on bp.file,custom.program.name
+            execute 'BASIC BP ' : custom.program.name CAPTURING DUMMY
+            execute 'CATALOG BP ' : custom.program.name : ' LOCAL'
+        end
+    next custom.program.ctr
+
+   close bp.file
+   close qmsys.bp.file
+
+* ----------------------------------------
    display sysmsg(6014) ;* Adding to register of accounts...
    s = ''
    s<ACC$PATH> = account.path

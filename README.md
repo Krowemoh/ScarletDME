@@ -86,14 +86,15 @@ This project uses Zig 0.15.0.
 Linux:
 
 ```
-wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz
-ln -s /root/zig-linux-x86_64-0.13.0/zig /usr/bin/zig
+wget https://ziglang.org/download/0.15.1/zig-x86_64-linux-0.15.1.tar.xz
+tar xvf zig-x86_64-linux-0.15.1.tar.xz
+ln -s /root/zig-x86_64-linux-0.15.1/zig /usr/bin/zig
 ```
 
 Mac:
 
 ```
-wget https://ziglang.org/download/0.13.0/zig-macos-aarch64-0.13.0.tar.xz
-tar xvf zig-macos-aarch64-0.13.0.tar.xz
-ln -s /Users/username/bp/zig-macos-aarch64-0.13.0/zig /usr/local/bin/zig
+wget https://ziglang.org/download/0.15.1/zig-aarch64-macos-0.15.1.tar.xz
+tar xvf zig-aarch64-macos-0.15.1.tar.xz
+ln -s /Users/username/bp/zig-aarch64-macos-0.15.1/zig /usr/local/bin/zig
 ```

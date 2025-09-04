@@ -43,6 +43,26 @@ qm
 
 You should now be at TCL.
 
+## Zig Installation
+
+This project uses Zig 0.15.0.
+
+Linux:
+
+```
+wget https://ziglang.org/download/0.15.1/zig-x86_64-linux-0.15.1.tar.xz
+tar xvf zig-x86_64-linux-0.15.1.tar.xz
+ln -s /root/zig-x86_64-linux-0.15.1/zig /usr/bin/zig
+```
+
+Mac:
+
+```
+wget https://ziglang.org/download/0.15.1/zig-aarch64-macos-0.15.1.tar.xz
+tar xvf zig-aarch64-macos-0.15.1.tar.xz
+ln -s /Users/username/bp/zig-aarch64-macos-0.15.1/zig /usr/local/bin/zig
+```
+
 ## Links
 
 The manual for OpenQM is available on the wiki.
@@ -50,6 +70,8 @@ The manual for OpenQM is available on the wiki.
 [Wiki](https://scarlet.deltasoft.com/index.php/Documentation)
 
 [Discord](https://discord.gg/H7MPapC2hK)
+
+[ScarletDME Google Group](https://groups.google.com/g/scarletdme/)
 
 
 ## Fork Specific Changelog
@@ -79,22 +101,4 @@ This is a list of what I've done since forking:
             - Upgraded from Zig 0.14.0 to 0.15.0
 ```
 
-## Zig Installation
 
-This project uses Zig 0.15.0.
-
-Linux:
-
-```
-wget https://ziglang.org/download/0.15.1/zig-x86_64-linux-0.15.1.tar.xz
-tar xvf zig-x86_64-linux-0.15.1.tar.xz
-ln -s /root/zig-x86_64-linux-0.15.1/zig /usr/bin/zig
-```
-
-Mac:
-
-```
-wget https://ziglang.org/download/0.15.1/zig-aarch64-macos-0.15.1.tar.xz
-tar xvf zig-aarch64-macos-0.15.1.tar.xz
-ln -s /Users/username/bp/zig-aarch64-macos-0.15.1/zig /usr/local/bin/zig
-```

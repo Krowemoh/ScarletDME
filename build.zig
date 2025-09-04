@@ -1,7 +1,6 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-
     const target = b.standardTargetOptions(.{});
     const os = target.result.os.tag;
 
@@ -19,38 +18,30 @@ pub fn build(b: *std.Build) void {
         "-fno-sanitize=undefined",
     };
 
-
-    const qmtic = b.addExecutable(.{ .name = "qmtic", .optimize = optimize, .target = target  });
-    const qmfix = b.addExecutable(.{ .name = "qmfix", .optimize = optimize, .target = target  });
-    const qmconv = b.addExecutable(.{ .name = "qmconv", .optimize = optimize, .target = target  });
-    const qmidx = b.addExecutable(.{ .name = "qmidx", .optimize = optimize, .target = target  });
-    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .optimize = optimize, .target = target  });
+    const qmtic = b.addExecutable(.{ .name = "qmtic", .optimize = optimize, .target = target });
+    const qmfix = b.addExecutable(.{ .name = "qmfix", .optimize = optimize, .target = target });
+    const qmconv = b.addExecutable(.{ .name = "qmconv", .optimize = optimize, .target = target });
+    const qmidx = b.addExecutable(.{ .name = "qmidx", .optimize = optimize, .target = target });
+    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .optimize = optimize, .target = target });
     const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, .target = target });
 
     const smath = b.addStaticLibrary(.{
-        .name = "op_smath", 
-        .root_source_file = b.path("src/op_smath.zig") ,
+        .name = "op_smath",
+        .root_source_file = b.path("src/op_smath.zig"),
         .optimize = optimize,
         .target = target,
     });
 
     const misc = b.addStaticLibrary(.{
-        .name = "op_misc", 
-        .root_source_file = b.path("src/op_misc.zig") ,
-        .optimize = optimize,
-        .target = target,
-    });
-
-    const secure_socket = b.addStaticLibrary(.{
-        .name = "op_secure_socket", 
-        .root_source_file = b.path("src/op_secure_socket.zig") ,
+        .name = "op_misc",
+        .root_source_file = b.path("src/op_misc.zig"),
         .optimize = optimize,
         .target = target,
     });
 
     const hashmap = b.addStaticLibrary(.{
-        .name = "op_hashmap", 
-        .root_source_file = b.path("src/op_hashmap.zig") ,
+        .name = "op_hashmap",
+        .root_source_file = b.path("src/op_hashmap.zig"),
         .optimize = optimize,
         .target = target,
     });
@@ -80,9 +71,6 @@ pub fn build(b: *std.Build) void {
         misc.addIncludePath(b.path("/opt/homebrew/include"));
         misc.addLibraryPath(b.path("/opt/homebrew/lib"));
 
-        secure_socket.addIncludePath(b.path("/opt/homebrew/include"));
-        secure_socket.addLibraryPath(b.path("/opt/homebrew/lib"));
-
         hashmap.addIncludePath(b.path("/opt/homebrew/include"));
         hashmap.addLibraryPath(b.path("/opt/homebrew/lib"));
     }
@@ -90,10 +78,7 @@ pub fn build(b: *std.Build) void {
     qmtic.linkLibC();
 
     qmtic.addCSourceFiles(.{
-        .files = &.{ 
-            "gplsrc/qmtic.c",
-            "gplsrc/inipath.c"
-        },
+        .files = &.{ "gplsrc/qmtic.c", "gplsrc/inipath.c" },
         .flags = &cflags,
     });
 
@@ -128,7 +113,6 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmconv);
 
-
     qmidx.linkLibC();
 
     qmidx.addCSourceFiles(.{
@@ -139,7 +123,6 @@ pub fn build(b: *std.Build) void {
     });
 
     b.installArtifact(qmidx);
-
 
     qmlnxd.linkLibC();
 
@@ -153,37 +136,17 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(qmlnxd);
 
-
     smath.addIncludePath(b.path("gplsrc"));
     smath.addIncludePath(b.path("src"));
     smath.linkLibC();
-
 
     misc.addIncludePath(b.path("gplsrc"));
     misc.addIncludePath(b.path("src"));
     misc.linkLibC();
 
-    secure_socket.addIncludePath(b.path("gplsrc"));
-    secure_socket.addIncludePath(b.path("src"));
-    secure_socket.addIncludePath(b.path("lib"));
-
-    secure_socket.addCSourceFiles(.{
-        .files = &.{
-            "lib/zig_ssl_config.c"
-        }, 
-        .flags = &[_][]const u8{"-std=c99"}
-    });
-
-    secure_socket.linkSystemLibrary("mbedcrypto");
-    secure_socket.linkSystemLibrary("mbedtls");
-    secure_socket.linkSystemLibrary("mbedx509");
-    secure_socket.linkLibC();
-
     hashmap.addIncludePath(b.path("gplsrc"));
     hashmap.addIncludePath(b.path("src"));
     hashmap.linkLibC();
-
-
 
     qm.linkLibC();
     qm.linkSystemLibrary("m");
@@ -283,7 +246,6 @@ pub fn build(b: *std.Build) void {
 
     qm.linkLibrary(smath);
     qm.linkLibrary(misc);
-    qm.linkLibrary(secure_socket);
     qm.linkLibrary(hashmap);
 
     b.installArtifact(qm);

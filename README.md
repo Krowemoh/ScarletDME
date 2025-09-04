@@ -75,6 +75,7 @@ This is a list of what I've done since forking:
 08 AUG 2024 - Upgraded from Zig 0.12.0 to 0.13.0
 11 SEP 2024 - BP created and NPM, NSH and EVA are loaded for new accounts
 04 SEP 2025 - Removed secure sockets and mbedtls dependency
+04 SEP 2025 - Upgraded from Zig 0.13.0 to 0.14.0
 ```
 
 ## Zig Installation

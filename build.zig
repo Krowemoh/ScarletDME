@@ -18,33 +18,30 @@ pub fn build(b: *std.Build) void {
         "-fno-sanitize=undefined",
     };
 
-    const qmtic = b.addExecutable(.{ .name = "qmtic", .optimize = optimize, .target = target });
-    const qmfix = b.addExecutable(.{ .name = "qmfix", .optimize = optimize, .target = target });
-    const qmconv = b.addExecutable(.{ .name = "qmconv", .optimize = optimize, .target = target });
-    const qmidx = b.addExecutable(.{ .name = "qmidx", .optimize = optimize, .target = target });
-    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .optimize = optimize, .target = target });
-    const qm = b.addExecutable(.{ .name = "qm", .optimize = optimize, .target = target });
+    const qmtic = b.addExecutable(.{ .name = "qmtic", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const qmfix = b.addExecutable(.{ .name = "qmfix", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const qmconv = b.addExecutable(.{ .name = "qmconv", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const qmidx = b.addExecutable(.{ .name = "qmidx", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const qm = b.addExecutable(.{ .name = "qm", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
 
-    const smath = b.addStaticLibrary(.{
-        .name = "op_smath",
+    const smath = b.addLibrary(.{ .name = "op_smath", .root_module = b.createModule(.{
         .root_source_file = b.path("src/op_smath.zig"),
         .optimize = optimize,
         .target = target,
-    });
+    }) });
 
-    const misc = b.addStaticLibrary(.{
-        .name = "op_misc",
+    const misc = b.addLibrary(.{ .name = "op_misc", .root_module = b.createModule(.{
         .root_source_file = b.path("src/op_misc.zig"),
         .optimize = optimize,
         .target = target,
-    });
+    }) });
 
-    const hashmap = b.addStaticLibrary(.{
-        .name = "op_hashmap",
+    const hashmap = b.addLibrary(.{ .name = "op_hashmap", .root_module = b.createModule(.{
         .root_source_file = b.path("src/op_hashmap.zig"),
         .optimize = optimize,
         .target = target,
-    });
+    }) });
 
     if (os == .macos) {
         qmtic.addIncludePath(b.path("/opt/homebrew/include"));

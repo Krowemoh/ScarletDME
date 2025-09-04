@@ -75,12 +75,13 @@ This is a list of what I've done since forking:
 08 AUG 2024 - Upgraded from Zig 0.12.0 to 0.13.0
 11 SEP 2024 - BP created and NPM, NSH and EVA are loaded for new accounts
 04 SEP 2025 - Removed secure sockets and mbedtls dependency
-04 SEP 2025 - Upgraded from Zig 0.13.0 to 0.14.0
+            - Upgraded from Zig 0.13.0 to 0.14.0
+            - Upgraded from Zig 0.14.0 to 0.15.0
 ```
 
 ## Zig Installation
 
-This project uses Zig 0.13.0.
+This project uses Zig 0.15.0.
 
 Linux:
 
@@ -96,7 +97,3 @@ wget https://ziglang.org/download/0.13.0/zig-macos-aarch64-0.13.0.tar.xz
 tar xvf zig-macos-aarch64-0.13.0.tar.xz
 ln -s /Users/username/bp/zig-macos-aarch64-0.13.0/zig /usr/local/bin/zig
 ```
-
-## mbedtls
-
-This is pinned to version 2. Some work needs to be done to get things working with version 3.

@@ -6,10 +6,6 @@ This is a fork of [geneb's ScarletDME repo](https://github.com/geneb/ScarletDME)
 
 The goal of this fork is to develop future features in Zig instead of C.
 
-## Requirements
-
-This project depends on libmbedtls-dev to handle secure connections.
-
 ## Installation
 
 ScarletDME is built with zig. There is a install script that is included in the utils directory that will install ScarletDME.

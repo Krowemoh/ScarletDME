@@ -45,7 +45,8 @@
 #ifdef __APPLE__
 #include <termios.h>
 #elif defined(__GLIBC__)
-#include <termio.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #else
 #include <termios.h>
 #include <sys/ioctl.h>

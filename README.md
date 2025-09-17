@@ -95,6 +95,7 @@ This is a list of what I've done since forking:
 04 SEP 2025 - Removed secure sockets and mbedtls dependency
             - Upgraded from Zig 0.13.0 to 0.14.0
             - Upgraded from Zig 0.14.0 to 0.15.0
+17 SEP 2025 - Set SIGPIPE to be ignored globlly
 ```
 
 

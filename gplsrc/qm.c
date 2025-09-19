@@ -124,7 +124,6 @@
 #include <setjmp.h>
 #include <time.h>
 #include <stdarg.h>
-#include <signal.h>
 
 // #define DEBUG /* enables harcoded diagnostic output */
 
@@ -171,8 +170,6 @@ void dump_pcode_file(void);
 
 int main(int argc, char *argv[]) {
   /* 13Jan22 gwb Refactored to remove "goto" calls. */
-
-  signal(SIGPIPE, SIG_IGN);
 
   int status = 1;
   char errmsg[80 + 1];

@@ -1172,7 +1172,7 @@ void op_writeskt() {
       if (!socket_wait(skt, FALSE, (blocking) ? timeout : 0))
         goto exit_op_writeskt;
 
-      bytes_sent = send(skt, p, bytes, 0);
+      bytes_sent = send(skt, p, bytes, MSG_NOSIGNAL);
       if (bytes_sent < 0) /* Lost connection */
       {
         process.status = ER_FAILED;

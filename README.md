@@ -96,6 +96,7 @@ This is a list of what I've done since forking:
             - Upgraded from Zig 0.13.0 to 0.14.0
             - Upgraded from Zig 0.14.0 to 0.15.0
 17 SEP 2025 - Set SIGPIPE to be ignored globlly
+19 SEP 2025 - Set SIGPIPE to be ignored locally
 ```
 
 

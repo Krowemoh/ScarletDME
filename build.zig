@@ -24,6 +24,7 @@ pub fn build(b: *std.Build) void {
     const qmidx = b.addExecutable(.{ .name = "qmidx", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
     const qmlnxd = b.addExecutable(.{ .name = "qmlnxd", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
     const qm = b.addExecutable(.{ .name = "qm", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
+    const prefix = b.addExecutable(.{ .name = "prefix", .root_module = b.createModule(.{ .optimize = optimize, .target = target }) });
 
     const smath = b.addLibrary(.{ .name = "op_smath", .root_module = b.createModule(.{
         .root_source_file = b.path("src/op_smath.zig"),
@@ -132,6 +133,20 @@ pub fn build(b: *std.Build) void {
     });
 
     b.installArtifact(qmlnxd);
+
+    prefix.linkLibC();
+
+    prefix.addCSourceFiles(.{
+        .files = &.{
+            "gplsrc/prefix.c",
+            "gplsrc/inipath.c",
+            "gplsrc/linuxlb.c",
+            "gplsrc/ctype.c",
+        },
+        .flags = &cflags,
+    });
+
+    b.installArtifact(prefix);
 
     smath.addIncludePath(b.path("gplsrc"));
     smath.addIncludePath(b.path("src"));

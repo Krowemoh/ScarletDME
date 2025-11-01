@@ -97,7 +97,7 @@ This is a list of what I've done since forking:
             - Upgraded from Zig 0.14.0 to 0.15.0
 17 SEP 2025 - Set SIGPIPE to be ignored globlly
 19 SEP 2025 - Set SIGPIPE to be ignored locally
-01 NOV 2025 - Cherry picked from geneb and mbuller to change filenames to '%0' 
+01 NOV 2025 - Cherry picked from geneb and mbullr to change filenames to '%0' 
 ```
 
 
